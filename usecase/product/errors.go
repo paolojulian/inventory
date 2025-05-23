@@ -9,4 +9,5 @@ var (
 	ErrInvalidPrice          = errors.New("invalid price")
 	ErrUnableToDeleteProduct = errors.New("unable to delete product")
 	ErrDBError               = errors.New("unable to delete product")
+	ErrProductNotFound       = errors.New("product not found")
 )
