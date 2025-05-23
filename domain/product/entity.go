@@ -2,8 +2,8 @@ package product
 
 type Product struct {
 	ID       string
-	SKU      string
+	SKU      SKU
 	Name     string
-	Price    string
+	Price    Money
 	IsActive bool
 }
