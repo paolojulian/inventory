@@ -2,6 +2,7 @@ package product_test
 
 import (
 	"context"
+	"strings"
 	"testing"
 
 	productDomain "paolojulian.dev/inventory/domain/product"
@@ -47,6 +48,24 @@ func TestCreateProduct_ValidInput(t *testing.T) {
 
 	if result.ProductID == "" {
 		t.Fatalf("expected a generated product ID")
+	}
+}
+
+func TestCreateProduct_DescriptionTooLong(t *testing.T) {
+	repo := &MockCreateProductRepo{existingSKUs: make(map[string]bool)}
+	uc := productUC.NewCreateProductUseCase(repo)
+
+	longDescription := strings.Repeat("x", 3001)
+	input := productUC.CreateProductInput{
+		Name:        "Test Product",
+		Description: longDescription,
+		SKU:         "TSHIRT-LG-RED",
+		Price:       19999,
+	}
+
+	_, err := uc.Execute(context.Background(), input)
+	if err == nil {
+		t.Fatalf("expected description too long, got nil")
 	}
 }
 

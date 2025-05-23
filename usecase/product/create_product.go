@@ -8,9 +8,10 @@ import (
 )
 
 type CreateProductInput struct {
-	Name  string
-	SKU   string
-	Price int // Cents, e.g. PHP 49.99 = 4999
+	Name        string
+	Description string
+	SKU         string
+	Price       int // Cents, e.g. PHP 49.99 = 4999
 }
 
 type CreateProductOutput struct {
@@ -31,7 +32,16 @@ func NewCreateProductUseCase(repo ProductRepository) *CreateProductUseCase {
 }
 
 func (uc *CreateProductUseCase) Execute(ctx context.Context, input CreateProductInput) (*CreateProductOutput, error) {
-	sku := product.SKU(input.SKU)
+	// Validate input
+	sku, err := product.NewSKU(input.SKU)
+	if err != nil {
+		return &CreateProductOutput{}, err
+	}
+
+	description, err := product.NewDescription(input.Description)
+	if err != nil {
+		return &CreateProductOutput{}, err
+	}
 
 	// Validate SKU
 	exists, err := uc.repo.ExistsBySKU(ctx, string(sku))
@@ -43,11 +53,12 @@ func (uc *CreateProductUseCase) Execute(ctx context.Context, input CreateProduct
 	}
 
 	createdProduct := &product.Product{
-		ID:       id.NewULID(),
-		SKU:      sku,
-		Name:     input.Name,
-		Price:    product.Money{Cents: input.Price},
-		IsActive: true,
+		ID:          id.NewULID(),
+		SKU:         sku,
+		Name:        input.Name,
+		Description: description,
+		Price:       product.Money{Cents: input.Price},
+		IsActive:    true,
 	}
 
 	if err := uc.repo.Save(ctx, createdProduct); err != nil {
