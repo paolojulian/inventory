@@ -10,24 +10,24 @@ import (
 
 // --- Mocks ---
 
-type mockRepo struct {
+type MockCreateProductRepo struct {
 	saved        *productDomain.Product
 	existingSKUs map[string]bool
 }
 
-func (r *mockRepo) Save(ctx context.Context, product *productDomain.Product) error {
+func (r *MockCreateProductRepo) Save(ctx context.Context, product *productDomain.Product) error {
 	r.saved = product
 	return nil
 }
 
-func (r *mockRepo) ExistsBySKU(ctx context.Context, sku string) (bool, error) {
+func (r *MockCreateProductRepo) ExistsBySKU(ctx context.Context, sku string) (bool, error) {
 	return r.existingSKUs[sku], nil
 }
 
 // --- Tests ---
 
 func TestCreateProduct_ValidInput(t *testing.T) {
-	repo := &mockRepo{existingSKUs: make(map[string]bool)}
+	repo := &MockCreateProductRepo{existingSKUs: make(map[string]bool)}
 	uc := productUC.NewCreateProductUseCase(repo)
 
 	input := productUC.CreateProductInput{
@@ -51,7 +51,7 @@ func TestCreateProduct_ValidInput(t *testing.T) {
 }
 
 func TestCreateProduct_SKUExists(t *testing.T) {
-	repo := &mockRepo{existingSKUs: map[string]bool{"TSHIRT-LG-RED": true}}
+	repo := &MockCreateProductRepo{existingSKUs: map[string]bool{"TSHIRT-LG-RED": true}}
 	uc := productUC.NewCreateProductUseCase(repo)
 
 	input := productUC.CreateProductInput{
