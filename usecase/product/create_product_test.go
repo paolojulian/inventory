@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	productDomain "paolojulian.dev/inventory/domain/product"
+	"paolojulian.dev/inventory/pkg/id"
 	productUC "paolojulian.dev/inventory/usecase/product"
 )
 
@@ -16,9 +17,18 @@ type MockCreateProductRepo struct {
 	existingSKUs map[string]bool
 }
 
-func (r *MockCreateProductRepo) Save(ctx context.Context, product *productDomain.Product) error {
-	r.saved = product
-	return nil
+func (r *MockCreateProductRepo) Save(ctx context.Context, product *productDomain.Product) (*productDomain.Product, error) {
+	savedProduct := &productDomain.Product{
+		ID:          id.NewULID(),
+		SKU:         product.SKU,
+		Name:        product.Name,
+		Description: product.Description,
+		Price:       product.Price,
+		IsActive:    true,
+	}
+	r.saved = savedProduct
+
+	return savedProduct, nil
 }
 
 func (r *MockCreateProductRepo) ExistsBySKU(ctx context.Context, sku string) (bool, error) {
@@ -46,7 +56,11 @@ func TestCreateProduct_ValidInput(t *testing.T) {
 		t.Fatalf("expected product to be saved with SKU 'TSHIRT-LG-RED'")
 	}
 
-	if result.ProductID == "" {
+	if result.Product == nil {
+		t.Fatalf("expected a generated product")
+	}
+
+	if result.Product.ID == "" {
 		t.Fatalf("expected a generated product ID")
 	}
 }

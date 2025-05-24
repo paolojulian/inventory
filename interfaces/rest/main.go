@@ -46,7 +46,7 @@ func main() {
 			return
 		}
 
-		ctx.JSON(201, gin.H{"product": result.ProductID})
+		ctx.JSON(201, gin.H{"product": result.Product})
 	})
 
 	r.Run()

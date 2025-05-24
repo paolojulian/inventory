@@ -15,11 +15,11 @@ type CreateProductInput struct {
 }
 
 type CreateProductOutput struct {
-	ProductID string
+	Product *product.Product
 }
 
 type ProductRepository interface {
-	Save(ctx context.Context, product *product.Product) error
+	Save(ctx context.Context, product *product.Product) (*product.Product, error)
 	ExistsBySKU(ctx context.Context, sku string) (bool, error)
 }
 
@@ -61,9 +61,10 @@ func (uc *CreateProductUseCase) Execute(ctx context.Context, input CreateProduct
 		IsActive:    true,
 	}
 
-	if err := uc.repo.Save(ctx, createdProduct); err != nil {
+	product, err := uc.repo.Save(ctx, createdProduct)
+	if err != nil {
 		return &CreateProductOutput{}, err
 	}
 
-	return &CreateProductOutput{ProductID: createdProduct.ID}, nil
+	return &CreateProductOutput{product}, nil
 }
