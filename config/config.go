@@ -1,0 +1,68 @@
+package config
+
+import (
+	"log"
+	"os"
+	"path/filepath"
+	"sync"
+
+	"github.com/joho/godotenv"
+)
+
+type Config struct {
+	DatabaseURL string
+	AppEnv      string
+}
+
+var (
+	cfg  *Config
+	once sync.Once
+)
+
+func LoadConfig() *Config {
+	once.Do(func() {
+		root, err := findProjectRoot()
+		if err != nil {
+			log.Fatalf("failed to find project root: %v", err)
+		}
+		envPath := filepath.Join(root, ".env")
+
+		// Detect test mode
+		envErr := godotenv.Load(envPath)
+		if envErr != nil {
+			log.Fatal(".env not found")
+		}
+
+		dbURL := os.Getenv("DATABASE_URL")
+		if dbURL == "" {
+			log.Fatal("DATABASE_URL is required")
+		}
+
+		cfg = &Config{
+			DatabaseURL: dbURL,
+		}
+	})
+	return cfg
+}
+
+// Traverse upward to find project root (where go.mod is)
+func findProjectRoot() (string, error) {
+	dir, err := os.Getwd()
+	if err != nil {
+		return "", err
+	}
+
+	for {
+		if _, err := os.Stat(filepath.Join(dir, "go.mod")); err == nil {
+			return dir, nil
+		}
+
+		parent := filepath.Dir(dir)
+		if parent == dir {
+			break // reached root
+		}
+		dir = parent
+	}
+
+	return "", os.ErrNotExist
+}
