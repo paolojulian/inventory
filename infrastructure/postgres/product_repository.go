@@ -41,6 +41,14 @@ func (r *ProductRepository) Save(ctx context.Context, p *product.Product) (*prod
 	return &created, nil
 }
 
+func (r *ProductRepository) Delete(ctx context.Context, productId string) error {
+	_, err := r.db.Exec(ctx, `
+		DELETE FROM products WHERE id = $1
+	`, productId)
+
+	return err // will only be non-nil if query fails
+}
+
 func (r *ProductRepository) ExistsBySKU(ctx context.Context, sku string) (bool, error) {
 	var exists bool
 	err := r.db.QueryRow(ctx, `

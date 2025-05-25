@@ -9,16 +9,15 @@ import (
 
 func DeleteHandler(uc *productUC.DeleteProductUseCase) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		var input productUC.DeleteProductInput
-
-		if err := ctx.ShouldBindJSON(&input); err != nil {
+		productID := ctx.Param("id")
+		if productID == "" {
 			ctx.JSON(http.StatusBadRequest, gin.H{
-				"message": "Invalid Input",
+				"message": "Product ID is required",
 			})
 			return
 		}
 
-		_, err := uc.Execute(ctx, input)
+		_, err := uc.Execute(ctx, productUC.DeleteProductInput{ProductID: productID})
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, gin.H{
 				"message": err.Error(),
@@ -26,8 +25,6 @@ func DeleteHandler(uc *productUC.DeleteProductUseCase) gin.HandlerFunc {
 			return
 		}
 
-		ctx.JSON(http.StatusNoContent, gin.H{
-			"message": "Product successfully deleted",
-		})
+		ctx.Status(http.StatusNoContent)
 	}
 }

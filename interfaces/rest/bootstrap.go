@@ -12,6 +12,7 @@ import (
 
 type ProductHandlers struct {
 	Create *productUC.CreateProductUseCase
+	Delete *productUC.DeleteProductUseCase
 }
 
 type Handlers struct {
@@ -42,6 +43,7 @@ func Bootstrap() *Application {
 	handlers := &Handlers{
 		Product: &ProductHandlers{
 			Create: productUC.NewCreateProductUseCase(productRepo),
+			Delete: productUC.NewDeleteProductUseCase(productRepo),
 		},
 	}
 

@@ -7,4 +7,5 @@ import (
 
 func registerRoutesProduct(r *gin.Engine, handlers *ProductHandlers) {
 	r.POST("/products", product_handler.CreateHandler(handlers.Create))
+	r.DELETE("/products/:id", product_handler.DeleteHandler(handlers.Delete))
 }
