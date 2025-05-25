@@ -8,10 +8,10 @@ import (
 )
 
 type CreateProductInput struct {
-	Name        string
-	Description string
-	SKU         string
-	Price       int // Cents, e.g. PHP 49.99 = 4999
+	Name        string `json:"name" binding:"required"`
+	Description string `json:"description"`
+	SKU         string `json:"sku" binding:"required"`
+	Price       int    `json:"price" binding:"required"` // Cents, e.g. PHP 49.99 = 4999
 }
 
 type CreateProductOutput struct {

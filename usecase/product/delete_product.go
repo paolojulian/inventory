@@ -3,7 +3,7 @@ package product
 import "context"
 
 type DeleteProductInput struct {
-	ProductID string
+	ProductID string `json:"product_id" binding:"required"`
 }
 
 type DeleteProductOutput struct {

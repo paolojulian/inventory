@@ -76,7 +76,6 @@ func findProjectRoot() (string, error) {
 
 func IsTestEnv() bool {
 	isTestEnv := os.Getenv("APP_ENV") == "test"
-	log.Printf("isTestEnv %t", isTestEnv)
 
 	return isTestEnv
 }
