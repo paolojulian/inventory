@@ -75,6 +75,60 @@ func (r *ProductRepository) GetByID(ctx context.Context, productID string) (*pro
 	return &found, nil
 }
 
+func (r *ProductRepository) ActivateProductByID(ctx context.Context, productID string) (*product.Product, error) {
+	row := r.db.QueryRow(ctx, `
+		UPDATE products
+		SET is_active = $1
+		WHERE id = $2
+		RETURNING id, sku, name, description, price_cents, is_active
+	`, true, productID)
+
+	var updated product.Product
+	var priceCents int
+
+	if err := row.Scan(
+		&updated.ID,
+		&updated.SKU,
+		&updated.Name,
+		&updated.Description,
+		&priceCents,
+		&updated.IsActive,
+	); err != nil {
+		return nil, err
+	}
+
+	updated.Price = product.Money{Cents: priceCents}
+
+	return &updated, nil
+}
+
+func (r *ProductRepository) DeactivateProductByID(ctx context.Context, productID string) (*product.Product, error) {
+	row := r.db.QueryRow(ctx, `
+		UPDATE products
+		SET is_active = $1
+		WHERE id = $2
+		RETURNING id, sku, name, description, price_cents, is_active
+	`, false, productID)
+
+	var updated product.Product
+	var priceCents int
+
+	if err := row.Scan(
+		&updated.ID,
+		&updated.SKU,
+		&updated.Name,
+		&updated.Description,
+		&priceCents,
+		&updated.IsActive,
+	); err != nil {
+		return nil, err
+	}
+
+	updated.Price = product.Money{Cents: priceCents}
+
+	return &updated, nil
+}
+
 func (r *ProductRepository) UpdateByID(ctx context.Context, productID string, p *product.Product) (*product.Product, error) {
 	row := r.db.QueryRow(ctx, `
 		UPDATE products

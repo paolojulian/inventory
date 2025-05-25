@@ -29,6 +29,6 @@ func CreateHandler(uc *product_uc.CreateProductUseCase) gin.HandlerFunc {
 			return
 		}
 
-		ctx.JSON(201, gin.H{"product": result.Product})
+		ctx.JSON(http.StatusCreated, gin.H{"product": result.Product})
 	}
 }

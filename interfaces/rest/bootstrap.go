@@ -11,9 +11,11 @@ import (
 )
 
 type ProductHandlers struct {
-	Create *productUC.CreateProductUseCase
-	Delete *productUC.DeleteProductUseCase
-	Update *productUC.UpdateProductBasicUseCase
+	Activate   *productUC.ActivateProductUseCase
+	Create     *productUC.CreateProductUseCase
+	Deactivate *productUC.DeactivateProductUseCase
+	Delete     *productUC.DeleteProductUseCase
+	Update     *productUC.UpdateProductBasicUseCase
 }
 
 type Handlers struct {
@@ -43,9 +45,11 @@ func Bootstrap() *Application {
 	productRepo := postgres.NewProductRepository(db)
 	handlers := &Handlers{
 		Product: &ProductHandlers{
-			Create: productUC.NewCreateProductUseCase(productRepo),
-			Delete: productUC.NewDeleteProductUseCase(productRepo),
-			Update: productUC.NewUpdateProductBasicUseCase(productRepo),
+			Activate:   productUC.NewActivateProductUseCase(productRepo),
+			Create:     productUC.NewCreateProductUseCase(productRepo),
+			Deactivate: productUC.NewDeactivateProductUseCase(productRepo),
+			Delete:     productUC.NewDeleteProductUseCase(productRepo),
+			Update:     productUC.NewUpdateProductBasicUseCase(productRepo),
 		},
 	}
 

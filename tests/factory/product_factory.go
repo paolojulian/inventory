@@ -6,7 +6,7 @@ import (
 )
 
 // NewTestProduct returns a product instance with default test values
-func NewTestProduct(sku string) *product.Product {
+func NewTestProduct() *product.Product {
 	return &product.Product{
 		ID:          id.NewUUID(),
 		SKU:         "TESTSKU123",

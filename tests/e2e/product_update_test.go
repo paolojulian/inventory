@@ -23,7 +23,7 @@ func TestUpdateProduct_ValidInput(t *testing.T) {
 
 	// == Create test data==
 	productRepo := postgres.NewProductRepository(bootstrap.DB)
-	product := factory.NewTestProduct("TESTSKU-123")
+	product := factory.NewTestProduct()
 
 	created, err := productRepo.Save(ctx, product)
 	assert.NoError(t, err)
@@ -67,7 +67,7 @@ func TestUpdateProduct_PartialUpdateShouldRemoveOtherFields(t *testing.T) {
 
 	// == Start test data ==
 	productRepo := postgres.NewProductRepository(bootstrap.DB)
-	product := factory.NewTestProduct("TESTSKU-123")
+	product := factory.NewTestProduct()
 
 	if created, err := productRepo.Save(ctx, product); err != nil {
 		assert.NoError(t, err)

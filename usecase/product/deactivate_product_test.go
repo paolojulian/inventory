@@ -14,7 +14,7 @@ type MockDeactivateProductRepo struct {
 	products map[string]*productDomain.Product
 }
 
-func (r *MockDeactivateProductRepo) DeactivateByID(ctx context.Context, productID string) (*productDomain.Product, error) {
+func (r *MockDeactivateProductRepo) DeactivateProductByID(ctx context.Context, productID string) (*productDomain.Product, error) {
 	if existingProduct, exists := r.products[productID]; exists {
 		existingProduct.IsActive = false
 

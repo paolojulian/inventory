@@ -15,7 +15,7 @@ type DeactivateProductOutput struct {
 }
 
 type DeactivateProductRepo interface {
-	DeactivateByID(ctx context.Context, productID string) (*productDomain.Product, error)
+	DeactivateProductByID(ctx context.Context, productID string) (*productDomain.Product, error)
 }
 
 type DeactivateProductUseCase struct {
@@ -27,7 +27,7 @@ func NewDeactivateProductUseCase(repo DeactivateProductRepo) *DeactivateProductU
 }
 
 func (uc *DeactivateProductUseCase) Execute(ctx context.Context, productID string) (*DeactivateProductOutput, error) {
-	newProduct, err := uc.repo.DeactivateByID(ctx, productID)
+	newProduct, err := uc.repo.DeactivateProductByID(ctx, productID)
 	if err != nil {
 		return nil, err
 	}
