@@ -7,9 +7,9 @@ import (
 )
 
 type UpdateProductBasicInput struct {
-	Name        string
-	Description string
-	Price       int
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	Price       int    `json:"price"`
 }
 
 type UpdateProductBasicOutput struct {
