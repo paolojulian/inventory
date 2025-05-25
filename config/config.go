@@ -25,7 +25,14 @@ func LoadConfig() *Config {
 		if err != nil {
 			log.Fatalf("failed to find project root: %v", err)
 		}
-		envPath := filepath.Join(root, ".env")
+		var envFileName string
+		if IsTestEnv() {
+			envFileName = ".env.test"
+		} else {
+			envFileName = ".env"
+		}
+
+		envPath := filepath.Join(root, envFileName)
 
 		// Detect test mode
 		envErr := godotenv.Load(envPath)
@@ -65,4 +72,11 @@ func findProjectRoot() (string, error) {
 	}
 
 	return "", os.ErrNotExist
+}
+
+func IsTestEnv() bool {
+	isTestEnv := os.Getenv("APP_ENV") == "test"
+	log.Printf("isTestEnv %t", isTestEnv)
+
+	return isTestEnv
 }
