@@ -19,7 +19,7 @@ type MockCreateProductRepo struct {
 
 func (r *MockCreateProductRepo) Save(ctx context.Context, product *productDomain.Product) (*productDomain.Product, error) {
 	savedProduct := &productDomain.Product{
-		ID:          id.NewULID(),
+		ID:          id.NewUUID(),
 		SKU:         product.SKU,
 		Name:        product.Name,
 		Description: product.Description,

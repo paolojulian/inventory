@@ -53,7 +53,7 @@ func (uc *CreateProductUseCase) Execute(ctx context.Context, input CreateProduct
 	}
 
 	createdProduct := &product.Product{
-		ID:          id.NewULID(),
+		ID:          id.NewUUID(),
 		SKU:         sku,
 		Name:        input.Name,
 		Description: description,

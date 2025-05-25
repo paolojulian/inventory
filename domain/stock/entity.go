@@ -1,6 +1,8 @@
 package stock
 
-import "time"
+import (
+	"time"
+)
 
 type StockEntry struct {
 	ID            string

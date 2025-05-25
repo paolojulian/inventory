@@ -8,11 +8,12 @@
 - **TDD-first**: Testing-first development (no Postman/Swagger)
 - **Modular Package Structure**:
 
-  - `domain/`
-  - `usecase/`
-  - `interfaces/`
-  - `infrastructure/`
-  - `config/`
+  - `domain/` - domain layer, entities an stuff
+  - `usecase/` - business logics/application layet
+  - `interfaces/` - endpoints like rest/gql(in the future)
+  - `infrastructure/` - things like databases and repositories
+  - `config/` - constants like env files
+  - `tests/` - e2e tests
 
 ---
 
