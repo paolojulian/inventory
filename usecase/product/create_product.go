@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"paolojulian.dev/inventory/domain/product"
-	"paolojulian.dev/inventory/pkg/id"
 )
 
 type CreateProductInput struct {
@@ -52,14 +51,12 @@ func (uc *CreateProductUseCase) Execute(ctx context.Context, input CreateProduct
 		return &CreateProductOutput{}, ErrSKUAlreadyExists
 	}
 
-	createdProduct := &product.Product{
-		ID:          id.NewUUID(),
-		SKU:         sku,
-		Name:        input.Name,
-		Description: description,
-		Price:       product.Money{Cents: input.Price},
-		IsActive:    true,
-	}
+	createdProduct := product.NewProduct(
+		sku,
+		input.Name,
+		description,
+		input.Price,
+	)
 
 	product, err := uc.repo.Save(ctx, createdProduct)
 	if err != nil {

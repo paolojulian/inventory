@@ -55,14 +55,13 @@ func TestDeleteProduct_InvalidProductID(t *testing.T) {
 
 	// Use the repository directly to insert test data
 	productRepo := postgres.NewProductRepository(bootstrap.DB)
-	product := &productDomain.Product{
-		ID:          id.NewUUID(), // or id.NewUUID()
-		SKU:         "TESTSKU123",
-		Name:        "Sample Product",
-		Description: "This is a test product.",
-		Price:       productDomain.Money{Cents: 4999},
-		IsActive:    true,
-	}
+	product := productDomain.NewProduct(
+		"TESTSKU-123",
+		"Sample Product",
+		"This is a test product",
+		4999,
+	)
+
 	created, err := productRepo.Save(ctx, product)
 	assert.NoError(t, err)
 	assert.NotNil(t, created)
