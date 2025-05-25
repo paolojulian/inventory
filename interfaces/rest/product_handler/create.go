@@ -1,6 +1,8 @@
 package product_handler
 
 import (
+	"net/http"
+
 	"github.com/gin-gonic/gin"
 	product_uc "paolojulian.dev/inventory/usecase/product"
 )
@@ -12,7 +14,7 @@ func CreateHandler(uc *product_uc.CreateProductUseCase) gin.HandlerFunc {
 		var input product_uc.CreateProductInput
 
 		if err := ctx.ShouldBindJSON(&input); err != nil {
-			ctx.JSON(400, gin.H{
+			ctx.JSON(http.StatusBadRequest, gin.H{
 				"message": "Invalid Input",
 			})
 			return
@@ -20,9 +22,9 @@ func CreateHandler(uc *product_uc.CreateProductUseCase) gin.HandlerFunc {
 
 		result, err := uc.Execute(ctx, input)
 		if err != nil {
-			status := 500
+			status := http.StatusInternalServerError
 			if err == product_uc.ErrSKUAlreadyExists {
-				status = 409
+				status = http.StatusConflict
 			}
 			ctx.JSON(status, gin.H{"error": err.Error()})
 			return
