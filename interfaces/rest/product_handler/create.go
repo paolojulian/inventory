@@ -10,7 +10,6 @@ import (
 func CreateHandler(uc *product_uc.CreateProductUseCase) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 
-		// TODO: Parse input and call the usecase
 		var input product_uc.CreateProductInput
 
 		if err := ctx.ShouldBindJSON(&input); err != nil {
