@@ -2,6 +2,8 @@ package postgres
 
 import (
 	"context"
+	"strconv"
+	"strings"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	"paolojulian.dev/inventory/domain/product"
@@ -129,13 +131,45 @@ func (r *ProductRepository) DeactivateProductByID(ctx context.Context, productID
 	return &updated, nil
 }
 
-func (r *ProductRepository) UpdateByID(ctx context.Context, productID string, p *product.Product) (*product.Product, error) {
-	row := r.db.QueryRow(ctx, `
+func (r *ProductRepository) UpdateByID(ctx context.Context, productID string, p *product.ProductPatch) (*product.Product, error) {
+	setClauses := []string{}
+	args := []interface{}{}
+	argPos := 1
+
+	if p.SKU != nil {
+		setClauses = append(setClauses, "sku = $"+strconv.Itoa(argPos))
+		args = append(args, *p.SKU)
+		argPos++
+	}
+	if p.Name != nil {
+		setClauses = append(setClauses, "name = $"+strconv.Itoa(argPos))
+		args = append(args, *p.Name)
+		argPos++
+	}
+	if p.Description != nil {
+		setClauses = append(setClauses, "description = $"+strconv.Itoa(argPos))
+		args = append(args, *p.Description)
+		argPos++
+	}
+	if p.Price != nil {
+		setClauses = append(setClauses, "price_cents = $"+strconv.Itoa(argPos))
+		args = append(args, p.Price.Cents)
+		argPos++
+	}
+
+	if len(setClauses) == 0 {
+		return nil, ErrNoFieldsToUpdate
+	}
+
+	args = append(args, productID)
+	query := `
 		UPDATE products
-		SET sku = $1, name = $2, description = $3, price_cents = $4
-		WHERE id = $5
+		SET ` + strings.Join(setClauses, ", ") + `
+		WHERE id = $` + strconv.Itoa(argPos) + `
 		RETURNING id, sku, name, description, price_cents, is_active
-	`, p.SKU, p.Name, p.Description, p.Price.Cents, productID)
+	`
+
+	row := r.db.QueryRow(ctx, query, args...)
 
 	var updated product.Product
 	var priceCents int

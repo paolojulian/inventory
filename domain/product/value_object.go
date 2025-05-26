@@ -16,6 +16,17 @@ func NewSKU(raw string) (SKU, error) {
 	return SKU(normalized), nil
 }
 
+func PtrSKUFromString(s *string) (*SKU, error) {
+	if s == nil {
+		return nil, nil
+	}
+	sku, err := NewSKU(*s)
+	if err != nil {
+		return nil, err
+	}
+	return &sku, nil
+}
+
 type Description string
 
 func NewDescription(raw string) (Description, error) {

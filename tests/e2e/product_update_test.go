@@ -60,7 +60,7 @@ func TestUpdateProduct_ValidInput(t *testing.T) {
 	bootstrap.DBCleanup()
 }
 
-func TestUpdateProduct_PartialUpdateShouldRemoveOtherFields(t *testing.T) {
+func TestUpdateProduct_PartialUpdateShouldOnlyUpdateTheFieldInput(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	bootstrap := rest.Bootstrap()
 	ctx := context.Background()
@@ -93,8 +93,9 @@ func TestUpdateProduct_PartialUpdateShouldRemoveOtherFields(t *testing.T) {
 	updatedProduct, err := productRepo.GetByID(ctx, product.ID)
 	assert.NoError(t, err)
 
-	assert.Equal(t, "", updatedProduct.Name)
-	assert.Equal(t, productDomain.Description(""), updatedProduct.Description)
+	assert.Equal(t, product.Name, updatedProduct.Name)
+	assert.Equal(t, product.Description, updatedProduct.Description)
+	assert.Equal(t, product.SKU, updatedProduct.SKU)
 	assert.Equal(t, 5999, updatedProduct.Price.Cents)
 
 	// == Cleanup ==

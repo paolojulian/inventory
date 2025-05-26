@@ -7,9 +7,10 @@ import (
 )
 
 type UpdateProductBasicInput struct {
-	Name        string `json:"name"`
-	Description string `json:"description"`
-	Price       int    `json:"price"`
+	Name        *string `json:"name"`
+	Description *string `json:"description"`
+	Price       *int    `json:"price"`
+	SKU         *string `json:"sku"`
 }
 
 type UpdateProductBasicOutput struct {
@@ -17,7 +18,7 @@ type UpdateProductBasicOutput struct {
 }
 
 type UpdateProductBasicRepo interface {
-	UpdateByID(ctx context.Context, productID string, product *productDomain.Product) (*productDomain.Product, error)
+	UpdateByID(ctx context.Context, productID string, product *productDomain.ProductPatch) (*productDomain.Product, error)
 }
 
 type UpdateProductBasicUseCase struct {
@@ -29,16 +30,36 @@ func NewUpdateProductBasicUseCase(repo UpdateProductBasicRepo) *UpdateProductBas
 }
 
 func (uc *UpdateProductBasicUseCase) Execute(ctx context.Context, productID string, input UpdateProductBasicInput) (*UpdateProductBasicOutput, error) {
-	// Parse and validate value objects
-	description, err := productDomain.NewDescription(input.Description)
-	if err != nil {
-		return nil, err
+	var description *productDomain.Description
+	if input.Description != nil {
+		newDescription, err := productDomain.NewDescription(*input.Description)
+		if err != nil {
+			return nil, err
+		}
+		description = &newDescription
 	}
 
-	updated := &productDomain.Product{
+	var price *productDomain.Money
+	if input.Price != nil {
+		price = &productDomain.Money{
+			Cents: *input.Price,
+		}
+	}
+
+	var sku *productDomain.SKU
+	if input.SKU != nil {
+		newSku, err := productDomain.PtrSKUFromString(input.SKU)
+		if err != nil {
+			return nil, err
+		}
+		sku = newSku
+	}
+
+	updated := &productDomain.ProductPatch{
 		Name:        input.Name,
 		Description: description,
-		Price:       productDomain.Money{Cents: input.Price},
+		Price:       price,
+		SKU:         sku,
 		// Other fields are unchanged
 	}
 

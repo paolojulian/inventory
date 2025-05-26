@@ -15,11 +15,20 @@ type MockUpdateProductBasicRepo struct {
 	products map[string]*productDomain.Product
 }
 
-func (r *MockActivateProductRepo) UpdateByID(ctx context.Context, productID string, product *productDomain.Product) (*productDomain.Product, error) {
+func (r *MockActivateProductRepo) UpdateByID(ctx context.Context, productID string, product *productDomain.ProductPatch) (*productDomain.Product, error) {
 	if existingProduct, exists := r.products[productID]; exists {
-		existingProduct.Name = product.Name
-		existingProduct.Description = product.Description
-		existingProduct.Price = product.Price
+		if product.Name != nil {
+			existingProduct.Name = *product.Name
+		}
+		if product.Description != nil {
+			existingProduct.Description = *product.Description
+		}
+		if product.Price != nil {
+			existingProduct.Price = *product.Price
+		}
+		if product.SKU != nil {
+			existingProduct.SKU = *product.SKU
+		}
 
 		return existingProduct, nil
 	}
@@ -37,16 +46,21 @@ func TestUpdateProductBasic__ValidInput(t *testing.T) {
 				Name:        "Old Name",
 				Description: productDomain.Description("Old Description"),
 				Price:       productDomain.Money{Cents: 1000},
+				SKU:         productDomain.SKU("TESTSKU-123"),
 			},
 		},
 	}
 
 	uc := productUC.NewUpdateProductBasicUseCase(repo)
 
+	var name string = "New Name"
+	var description string = "New Description"
+	var price int = 2000
+
 	input := productUC.UpdateProductBasicInput{
-		Name:        "New Name",
-		Description: "New Description",
-		Price:       2000,
+		Name:        &name,
+		Description: &description,
+		Price:       &price,
 	}
 
 	result, err := uc.Execute(context.Background(), "existing-product-id", input)
@@ -80,10 +94,14 @@ func TestUpdateProductBasic__ProductNotFound(t *testing.T) {
 
 	uc := productUC.NewUpdateProductBasicUseCase(repo)
 
+	var name string = "New Name"
+	var description string = "New Description"
+	var price int = 2000
+
 	input := productUC.UpdateProductBasicInput{
-		Name:        "New Name",
-		Description: "New Description",
-		Price:       2000,
+		Name:        &name,
+		Description: &description,
+		Price:       &price,
 	}
 
 	_, err := uc.Execute(context.Background(), "non-existing-product-id", input)
