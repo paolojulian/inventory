@@ -3,7 +3,8 @@ package user
 import (
 	"context"
 
-	userDomain "paolojulian.dev/inventory/domain/user"
+	"paolojulian.dev/inventory/domain/user"
+	"paolojulian.dev/inventory/infrastructure/auth"
 )
 
 type LoginInput struct {
@@ -12,11 +13,11 @@ type LoginInput struct {
 }
 
 type LoginOutput struct {
-	Token userDomain.UserAccessToken
+	Token auth.AccessToken
 }
 
 type UserRepository interface {
-	Login(ctx context.Context, input *LoginInput) error
+	Login(ctx context.Context, input *LoginInput) (*user.User, error)
 }
 
 type LoginUseCase struct {
@@ -28,12 +29,15 @@ func NewLoginUseCase(repo UserRepository) *LoginUseCase {
 }
 
 func (uc *LoginUseCase) Execute(ctx context.Context, input *LoginInput) (*LoginOutput, error) {
-	err := uc.repo.Login(ctx, input)
+	user, err := uc.repo.Login(ctx, input)
 	if err != nil {
 		return nil, err
 	}
 
-	userAccessToken := userDomain.NewUserAccessToken()
+	userAccessToken, err := auth.NewAccessToken(user.ID)
+	if err != nil {
+		return nil, err
+	}
 
 	return &LoginOutput{
 		Token: userAccessToken,

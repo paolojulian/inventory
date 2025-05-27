@@ -17,17 +17,17 @@ type MockUserRepo struct {
 	users map[string]*userDomain.User
 }
 
-func (r *MockUserRepo) Login(ctx context.Context, input *userUC.LoginInput) error {
+func (r *MockUserRepo) Login(ctx context.Context, input *userUC.LoginInput) (*userDomain.User, error) {
 	existingUser, exists := r.users[input.Username]
 	if !exists {
-		return userUC.ErrUserNotFound
+		return nil, userUC.ErrUserNotFound
 	}
 
 	if err := userDomain.ComparePassword(existingUser.Password, input.Password); err != nil {
-		return userUC.ErrWrongPassword
+		return nil, userUC.ErrWrongPassword
 	}
 
-	return nil
+	return existingUser, nil
 }
 
 // == Tests ==
