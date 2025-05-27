@@ -2,6 +2,7 @@ package user
 
 type User struct {
 	ID        string
+	UserName  string
 	FirstName string
 	LastName  string
 	Email     string
