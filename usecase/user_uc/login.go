@@ -1,9 +1,9 @@
-package user
+package user_uc
 
 import (
 	"context"
 
-	"paolojulian.dev/inventory/domain/user"
+	userDomain "paolojulian.dev/inventory/domain/user"
 	"paolojulian.dev/inventory/infrastructure/auth"
 )
 
@@ -17,7 +17,7 @@ type LoginOutput struct {
 }
 
 type UserRepository interface {
-	Login(ctx context.Context, input *LoginInput) (*user.User, error)
+	FindByUsername(ctx context.Context, username string) (*userDomain.User, error)
 }
 
 type LoginUseCase struct {
@@ -29,8 +29,12 @@ func NewLoginUseCase(repo UserRepository) *LoginUseCase {
 }
 
 func (uc *LoginUseCase) Execute(ctx context.Context, input *LoginInput) (*LoginOutput, error) {
-	user, err := uc.repo.Login(ctx, input)
+	user, err := uc.repo.FindByUsername(ctx, input.Username)
 	if err != nil {
+		return nil, err
+	}
+
+	if err := userDomain.ComparePassword(user.Password, input.Password); err != nil {
 		return nil, err
 	}
 

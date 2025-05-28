@@ -8,6 +8,7 @@ import (
 	"paolojulian.dev/inventory/config"
 	"paolojulian.dev/inventory/infrastructure/postgres"
 	productUC "paolojulian.dev/inventory/usecase/product"
+	"paolojulian.dev/inventory/usecase/user_uc"
 )
 
 type ProductHandlers struct {
@@ -18,8 +19,13 @@ type ProductHandlers struct {
 	Update     *productUC.UpdateProductBasicUseCase
 }
 
+type AuthHandlers struct {
+	Login *user_uc.LoginUseCase
+}
+
 type Handlers struct {
 	Product *ProductHandlers
+	Auth    *AuthHandlers
 }
 
 type Application struct {
@@ -43,6 +49,8 @@ func Bootstrap() *Application {
 
 	// Wire the repo to use cases
 	productRepo := postgres.NewProductRepository(db)
+	userRepo := postgres.NewUserRepository(db)
+
 	handlers := &Handlers{
 		Product: &ProductHandlers{
 			Activate:   productUC.NewActivateProductUseCase(productRepo),
@@ -50,6 +58,9 @@ func Bootstrap() *Application {
 			Deactivate: productUC.NewDeactivateProductUseCase(productRepo),
 			Delete:     productUC.NewDeleteProductUseCase(productRepo),
 			Update:     productUC.NewUpdateProductBasicUseCase(productRepo),
+		},
+		Auth: &AuthHandlers{
+			Login: user_uc.NewLoginUseCase(userRepo),
 		},
 	}
 

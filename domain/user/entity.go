@@ -2,12 +2,12 @@ package user
 
 type User struct {
 	ID        string
-	UserName  string
-	FirstName string
-	LastName  string
-	Email     string
-	Mobile    string
-	Password  string // Hashed password
-	Role      UserRole
+	Username  string
+	Password  string
+	Role      string
 	IsActive  bool
+	Email     *string
+	FirstName *string
+	LastName  *string
+	Mobile    *string
 }

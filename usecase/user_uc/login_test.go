@@ -1,8 +1,7 @@
-package user_test
+package user_uc_test
 
 import (
 	"context"
-	"log"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -17,14 +16,10 @@ type MockUserRepo struct {
 	users map[string]*userDomain.User
 }
 
-func (r *MockUserRepo) Login(ctx context.Context, input *userUC.LoginInput) (*userDomain.User, error) {
-	existingUser, exists := r.users[input.Username]
+func (r *MockUserRepo) FindByUsername(ctx context.Context, username string) (*userDomain.User, error) {
+	existingUser, exists := r.users[username]
 	if !exists {
 		return nil, userUC.ErrUserNotFound
-	}
-
-	if err := userDomain.ComparePassword(existingUser.Password, input.Password); err != nil {
-		return nil, userUC.ErrWrongPassword
 	}
 
 	return existingUser, nil
@@ -33,22 +28,17 @@ func (r *MockUserRepo) Login(ctx context.Context, input *userUC.LoginInput) (*us
 // == Tests ==
 func TestLogin_Success(t *testing.T) {
 	var password string = "qwe123!"
-	testUser := factory.NewTestUser()
-	hashedPassword, err := userDomain.HashPassword(password)
-	if err != nil {
-		log.Fatalf("unexpected error: %v", err)
-	}
-	testUser.Password = string(hashedPassword)
+	testUser := factory.NewTestUser(password)
 
 	repo := &MockUserRepo{
 		users: map[string]*userDomain.User{
-			testUser.UserName: testUser,
+			testUser.Username: testUser,
 		},
 	}
 	uc := userUC.NewLoginUseCase(repo)
 
 	input := &userUC.LoginInput{
-		Username: testUser.UserName,
+		Username: testUser.Username,
 		Password: password,
 	}
 
