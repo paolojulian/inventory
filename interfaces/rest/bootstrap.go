@@ -7,7 +7,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"paolojulian.dev/inventory/config"
 	"paolojulian.dev/inventory/infrastructure/postgres"
-	productUC "paolojulian.dev/inventory/usecase/product"
+	productUC "paolojulian.dev/inventory/usecase/product_uc"
 	"paolojulian.dev/inventory/usecase/user_uc"
 )
 

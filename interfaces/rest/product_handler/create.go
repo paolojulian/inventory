@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	product_uc "paolojulian.dev/inventory/usecase/product"
+	product_uc "paolojulian.dev/inventory/usecase/product_uc"
 )
 
 func CreateHandler(uc *product_uc.CreateProductUseCase) gin.HandlerFunc {

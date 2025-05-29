@@ -1,11 +1,11 @@
-package product_test
+package product_uc_test
 
 import (
 	"context"
 	"errors"
 	"testing"
 
-	productUC "paolojulian.dev/inventory/usecase/product"
+	productUC "paolojulian.dev/inventory/usecase/product_uc"
 )
 
 // --- Mock Repository ---
