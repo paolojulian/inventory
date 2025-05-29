@@ -10,3 +10,18 @@ const (
 	ReasonTransferOut StockReason = "transfer_out"
 	ReasonAdjustment  StockReason = "adjustment"
 )
+
+func IsValidStockReason(reason string) bool {
+	switch StockReason(reason) {
+	case
+		ReasonRestock,
+		ReasonSale,
+		ReasonDamage,
+		ReasonTransferIn,
+		ReasonTransferOut,
+		ReasonAdjustment:
+		return true
+	default:
+		return false
+	}
+}
