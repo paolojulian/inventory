@@ -1,8 +1,9 @@
 package warehouse
 
 type Warehouse struct {
-	ID       string
-	Location WarehouseLocation
-	Capacity int
-	IsActive bool
+	ID            string
+	Location      WarehouseLocation
+	IsActive      bool
+	CreatedBy     string
+	LastUpdatedBy string
 }

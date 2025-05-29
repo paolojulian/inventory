@@ -2,9 +2,9 @@ package warehouse
 
 type WarehouseLocation struct {
 	Address     string
-	City        string
-	Region      string
-	Country     string
+	City        *string
+	Region      *string
+	Country     *string
 	Coordinates *Coordinates
 }
 
