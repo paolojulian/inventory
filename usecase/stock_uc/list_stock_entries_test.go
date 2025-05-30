@@ -15,8 +15,8 @@ type MockListStockEntriesRepo struct {
 	stockEntries []*stock.StockEntry
 }
 
-func (repo *MockListStockEntriesRepo) GetList(ctx context.Context, limit int) ([]*stock.StockEntry, error) {
-	return repo.stockEntries, nil
+func (repo *MockListStockEntriesRepo) GetList(ctx context.Context, limit int) ([]*stock.StockEntry, int, error) {
+	return repo.stockEntries, len(repo.stockEntries), nil
 }
 
 func TestListStockEntries_Success(t *testing.T) {
@@ -33,4 +33,5 @@ func TestListStockEntries_Success(t *testing.T) {
 	result, err := uc.Execute(context.Background(), input)
 	assert.NoError(t, err)
 	assert.NotEmpty(t, result)
+	assert.Equal(t, result.Total, len(repo.stockEntries))
 }

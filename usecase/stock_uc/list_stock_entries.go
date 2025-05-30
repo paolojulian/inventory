@@ -14,25 +14,34 @@ type ListStockEntriesInput struct {
 
 type ListStockEntriesOutput struct {
 	StockEntries []*stock.StockEntry
+	Total        int
 }
 
-type StockRepository interface {
-	GetList(ctx context.Context, limit int) ([]*stock.StockEntry, error)
+type ListStockEntriesRepository interface {
+	GetList(ctx context.Context, limit int) ([]*stock.StockEntry, int, error)
 }
 
 type ListStockEntriesUseCase struct {
-	repo StockRepository
+	repo ListStockEntriesRepository
 }
 
-func NewListStockEntriesUseCase(repo StockRepository) *ListStockEntriesUseCase {
+func NewListStockEntriesUseCase(repo ListStockEntriesRepository) *ListStockEntriesUseCase {
 	return &ListStockEntriesUseCase{repo}
 }
 
-func (uc *ListStockEntriesUseCase) Execute(ctx context.Context, input *ListStockEntriesInput) ([]*stock.StockEntry, error) {
+func (uc *ListStockEntriesUseCase) Execute(ctx context.Context, input *ListStockEntriesInput) (*ListStockEntriesOutput, error) {
 	limit := config.DefaultListLimit
 	if input.Limit != nil || *input.Limit <= 0 {
 		limit = *input.Limit
 	}
 
-	return uc.repo.GetList(ctx, limit)
+	stockEntries, totalCount, err := uc.repo.GetList(ctx, limit)
+	if err != nil {
+		return nil, err
+	}
+
+	return &ListStockEntriesOutput{
+		StockEntries: stockEntries,
+		Total:        totalCount,
+	}, nil
 }
