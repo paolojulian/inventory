@@ -7,3 +7,13 @@ func StringPointer(s string) *string {
 func BoolPointer(b bool) *bool {
 	return &b
 }
+
+func Includes(slice []string, str string) bool {
+	for _, item := range slice {
+		if item == str {
+			return true
+		}
+	}
+
+	return false
+}

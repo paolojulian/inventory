@@ -28,7 +28,7 @@ func NewCreateStockEntryUseCase(repo StockEntryRepository) *CreateStockEntryUseC
 	return &CreateStockEntryUseCase{repo}
 }
 
-func (uc *CreateStockEntryUseCase) Execute(ctx context.Context, input StockEntryInput, userID string) (*StockEntryOutput, error) {
+func (uc *CreateStockEntryUseCase) Execute(ctx context.Context, input *StockEntryInput, userID string) (*StockEntryOutput, error) {
 	if !stock.IsValidStockReason(input.Reason) {
 		return nil, ErrInvalidReason
 	}
