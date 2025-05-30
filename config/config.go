@@ -19,6 +19,11 @@ var (
 	once sync.Once
 )
 
+const (
+	/** Limit for tables/lists from db */
+	DefaultListLimit = 50
+)
+
 func LoadConfig() *Config {
 	once.Do(func() {
 		root, err := findProjectRoot()
