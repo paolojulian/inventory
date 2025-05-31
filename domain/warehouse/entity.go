@@ -7,3 +7,8 @@ type Warehouse struct {
 	CreatedBy     string
 	LastUpdatedBy string
 }
+
+type WarehouseSummary struct {
+	ID       string
+	Location WarehouseLocation
+}

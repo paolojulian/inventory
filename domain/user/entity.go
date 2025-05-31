@@ -11,3 +11,12 @@ type User struct {
 	LastName  *string
 	Mobile    *string
 }
+
+type UserSummary struct {
+	ID        string
+	Username  string
+	Role      string
+	Email     *string
+	FirstName *string
+	LastName  *string
+}

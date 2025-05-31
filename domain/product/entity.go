@@ -11,6 +11,13 @@ type Product struct {
 	IsActive    bool
 }
 
+type ProductSummary struct {
+	ID    string
+	SKU   SKU
+	Name  string
+	Price Money
+}
+
 func NewProduct(sku SKU, name string, description Description, priceCents int) *Product {
 	return &Product{
 		ID:          id.NewUUID(),
