@@ -30,3 +30,20 @@ func NewTestUser(password string) *user.User {
 		IsActive:  true,
 	}
 }
+
+func NewTestUserSummary() *user.UserSummary {
+	firstName := "John"
+	lastName := "Doe"
+	email := "johndoe@email.com"
+	mobile := "09279488654"
+
+	return &user.UserSummary{
+		ID:        id.NewUUID(),
+		Username:  "johndoe",
+		FirstName: &firstName,
+		LastName:  &lastName,
+		Email:     &email,
+		Mobile:    &mobile,
+		Role:      string(user.AdminRole),
+	}
+}

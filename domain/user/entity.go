@@ -19,4 +19,5 @@ type UserSummary struct {
 	Email     *string
 	FirstName *string
 	LastName  *string
+	Mobile    *string
 }

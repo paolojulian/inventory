@@ -16,3 +16,12 @@ func NewTestProduct() *product.Product {
 		IsActive:    true,
 	}
 }
+
+func NewTestProductSummary() *product.ProductSummary {
+	return &product.ProductSummary{
+		ID:    id.NewUUID(),
+		SKU:   "TESTSKU123",
+		Name:  "Sample Product",
+		Price: product.Money{Cents: 4999},
+	}
+}

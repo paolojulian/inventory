@@ -25,3 +25,19 @@ func NewTestWarehouse() *warehouse.Warehouse {
 		LastUpdatedBy: middleware.FakeUserID,
 	}
 }
+
+func NewTestWarehouseSummary() *warehouse.WarehouseSummary {
+	return &warehouse.WarehouseSummary{
+		ID: id.NewUUID(),
+		Location: warehouse.WarehouseLocation{
+			Address: "123 Test St",
+			City:    config.StringPointer("Test City"),
+			Region:  config.StringPointer("Test Region"),
+			Country: config.StringPointer("Testland"),
+			Coordinates: &warehouse.Coordinates{
+				Latitude:  12.345678,
+				Longitude: 98.765432,
+			},
+		},
+	}
+}

@@ -22,19 +22,19 @@ type GetStockEntryOutput struct {
 }
 
 type stockRepository interface {
-	GetByID(ctx context.Context, stockEntryID string) (stock.StockEntry, error)
+	GetByID(ctx context.Context, stockEntryID string) (*stock.StockEntry, error)
 }
 
 type productRepository interface {
-	GetSummary(ctx context.Context, productID string) (product.ProductSummary, error)
+	GetSummary(ctx context.Context, productID string) (*product.ProductSummary, error)
 }
 
 type warehouseRepository interface {
-	GetSummary(ctx context.Context, warehouseID string) (warehouse.WarehouseSummary, error)
+	GetSummary(ctx context.Context, warehouseID string) (*warehouse.WarehouseSummary, error)
 }
 
 type userRepository interface {
-	GetSummary(ctx context.Context, userID string) (user.UserSummary, error)
+	GetSummary(ctx context.Context, userID string) (*user.UserSummary, error)
 }
 
 type GetStockEntryUseCase struct {
@@ -72,7 +72,7 @@ func (uc *GetStockEntryUseCase) Execute(ctx context.Context, stockEntryID string
 		if err != nil {
 			return err
 		}
-		productSummary = &summary
+		productSummary = summary
 		return nil
 	})
 
@@ -81,7 +81,7 @@ func (uc *GetStockEntryUseCase) Execute(ctx context.Context, stockEntryID string
 		if err != nil {
 			return err
 		}
-		warehouseSummary = &summary
+		warehouseSummary = summary
 		return nil
 	})
 
@@ -90,7 +90,7 @@ func (uc *GetStockEntryUseCase) Execute(ctx context.Context, stockEntryID string
 		if err != nil {
 			return err
 		}
-		userSummary = &summary
+		userSummary = summary
 		return nil
 	})
 
@@ -99,7 +99,7 @@ func (uc *GetStockEntryUseCase) Execute(ctx context.Context, stockEntryID string
 	}
 
 	return &GetStockEntryOutput{
-		StockEntry: &stockEntry,
+		StockEntry: stockEntry,
 		Product:    productSummary,
 		Warehouse:  warehouseSummary,
 		User:       userSummary,
