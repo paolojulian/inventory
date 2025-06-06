@@ -1,6 +1,9 @@
 package rest
 
 import (
+	"time"
+
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"paolojulian.dev/inventory/config"
 	"paolojulian.dev/inventory/interfaces/rest/middleware"
@@ -8,6 +11,21 @@ import (
 	"paolojulian.dev/inventory/interfaces/rest/user_handler"
 	middlewareTest "paolojulian.dev/inventory/tests/middleware"
 )
+
+func setupRouter() *gin.Engine {
+	router := gin.Default()
+
+	router.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"http://localhost:5173"},
+		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+		MaxAge:           12 * time.Hour,
+	}))
+
+	return router
+}
 
 func registerRoutesProduct(r *gin.Engine, handlers *ProductHandlers) {
 	var productGroup *gin.RouterGroup
@@ -33,5 +51,5 @@ func registerRoutesAuth(r *gin.Engine, handlers *AuthHandlers) {
 	}
 
 	authGroup.POST("/login", user_handler.LoginHandler(handlers.Login))
-	// authGroup.POST("/logout", product_handler.CreateHandler(handlers.Create))
+	authGroup.POST("/logout", user_handler.LogoutHandler())
 }

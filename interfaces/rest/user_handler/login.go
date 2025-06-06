@@ -14,6 +14,7 @@ func LoginHandler(uc *user_uc.LoginUseCase) gin.HandlerFunc {
 			ctx.Status(http.StatusUnauthorized)
 			return
 		}
+
 		result, err := uc.Execute(ctx, &input)
 		if err != nil {
 			ctx.Status(http.StatusUnauthorized)

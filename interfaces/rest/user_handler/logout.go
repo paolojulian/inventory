@@ -4,10 +4,9 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"paolojulian.dev/inventory/usecase/user_uc"
 )
 
-func LogoutHandler(uc *user_uc.LoginUseCase) gin.HandlerFunc {
+func LogoutHandler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		// Remove cookie
 		ctx.SetCookie("access_token", "", -1, "/", "", true, true)

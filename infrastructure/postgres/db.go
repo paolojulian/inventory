@@ -3,10 +3,20 @@ package postgres
 import (
 	"context"
 	"fmt"
+	"time"
 
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"paolojulian.dev/inventory/config"
+	"paolojulian.dev/inventory/domain/user"
 )
+
+type PgxQuerier interface {
+	Exec(ctx context.Context, sql string, arguments ...any) (pgconn.CommandTag, error)
+	Query(ctx context.Context, sql string, args ...any) (pgx.Rows, error)
+	QueryRow(ctx context.Context, sql string, args ...any) pgx.Row
+}
 
 func NewPool() (*pgxpool.Pool, error) {
 	config := config.LoadConfig()
@@ -77,4 +87,42 @@ func MigrateSchema(db *pgxpool.Pool) error {
 		$$;
 	`)
 	return err
+}
+
+func PopulateInitialData(db *pgxpool.Pool) error {
+	defaultAdmin, err := user.NewUser(
+		"theman",
+		"qwe123!",
+		user.AdminRole,
+		true,
+		config.StringPointer("johndoe@email.com"),
+		config.StringPointer("Serrah"),
+		config.StringPointer("Kerrigan"),
+		config.StringPointer("09279488654"),
+	)
+	if err != nil {
+		return err
+	}
+
+	// Set a 15-second timeout
+	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+	defer cancel()
+
+	// GET, if not existing, add
+	repo := NewUserRepository(db)
+	existingSuperAdmin, err := repo.FindByUsername(ctx, "theman")
+	if err != nil {
+		return err
+	}
+
+	if existingSuperAdmin != nil {
+		// Super admin already exists
+		return nil
+	}
+
+	if _, err := repo.Save(ctx, defaultAdmin); err != nil {
+		return err
+	}
+
+	return nil
 }

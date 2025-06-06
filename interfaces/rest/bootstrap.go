@@ -45,7 +45,13 @@ func Bootstrap() *Application {
 		log.Fatalf("failed to connect to the database server. error: %v", err)
 	}
 
-	postgres.MigrateSchema(db)
+	if err := postgres.MigrateSchema(db); err != nil {
+		log.Fatalf("unable to migrate schema: %v", err)
+	}
+
+	if err := postgres.PopulateInitialData(db); err != nil {
+		log.Fatalf("unable to populate initial data: %v", err)
+	}
 
 	// Wire the repo to use cases
 	productRepo := postgres.NewProductRepository(db)
@@ -64,8 +70,9 @@ func Bootstrap() *Application {
 		},
 	}
 
-	router := gin.Default()
+	router := setupRouter()
 	registerRoutesProduct(router, handlers.Product)
+	registerRoutesAuth(router, handlers.Auth)
 
 	return &Application{
 		Router:    router,

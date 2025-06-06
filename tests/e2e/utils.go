@@ -12,6 +12,7 @@ func cleanupTables(ctx context.Context, db *pgxpool.Pool) error {
 	if !config.IsTestEnv() {
 		return errors.New("You are not using a test env, cleanup failed.")
 	}
+
 	_, err := db.Exec(ctx, `
 		DO
 		$$
@@ -19,7 +20,7 @@ func cleanupTables(ctx context.Context, db *pgxpool.Pool) error {
 			r RECORD;
 		BEGIN
 			FOR r IN (SELECT tablename FROM pg_tables WHERE schemaname = 'public') LOOP
-				EXECUTE 'DROP TABLE IF EXISTS public.' || quote_ident(r.tablename) || ' CASCADE';
+				EXECUTE 'TRUNCATE TABLE public.' || quote_ident(r.tablename) || ' RESTART IDENTITY CASCADE';
 			END LOOP;
 		END
 		$$;
