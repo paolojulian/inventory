@@ -10,8 +10,9 @@ import (
 )
 
 type Config struct {
-	DatabaseURL string
-	AppEnv      string
+	DatabaseURL      string
+	DatabaseNoSSLURL string
+	AppEnv           string
 }
 
 var (
@@ -50,8 +51,14 @@ func LoadConfig() *Config {
 			log.Fatal("DATABASE_URL is required")
 		}
 
+		dbNoSSLURL := os.Getenv("DATABASE_NO_SSL_URL")
+		if dbURL == "" {
+			log.Fatal("DATABASE_NO_SSL_URL is required")
+		}
+
 		cfg = &Config{
-			DatabaseURL: dbURL,
+			DatabaseURL:      dbURL,
+			DatabaseNoSSLURL: dbNoSSLURL,
 		}
 	})
 	return cfg
