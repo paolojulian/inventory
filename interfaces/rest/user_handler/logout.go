@@ -9,7 +9,7 @@ import (
 func LogoutHandler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		// Remove cookie
-		ctx.SetCookie("access_token", "", -1, "/", "", true, true)
+		ctx.SetCookie(accessTokenKey, "", -1, "/", "", true, true)
 
 		ctx.JSON(http.StatusOK, gin.H{
 			"message": "logged out successfully.",

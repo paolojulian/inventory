@@ -52,4 +52,5 @@ func registerRoutesAuth(r *gin.Engine, handlers *AuthHandlers) {
 
 	authGroup.POST("/login", user_handler.LoginHandler(handlers.Login))
 	authGroup.POST("/logout", user_handler.LogoutHandler())
+	authGroup.POST("/me", user_handler.MeHandler())
 }

@@ -38,3 +38,10 @@ func ParseToken(tokenStr string) (string, error) {
 	}
 	return sub, nil
 }
+
+func IsTokenValid(tokenStr string) bool {
+	token, err := jwt.Parse(tokenStr, func(token *jwt.Token) (interface{}, error) {
+		return jwtSecret, nil
+	})
+	return err == nil && token.Valid
+}
