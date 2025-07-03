@@ -18,6 +18,16 @@ type ProductSummary struct {
 	Price Money
 }
 
+type ProductFilter struct {
+	SearchText *string
+	IsActive   *bool
+}
+
+type ProductSort struct {
+	Field string
+	Order string
+}
+
 func NewProduct(sku SKU, name string, description Description, priceCents int) *Product {
 	return &Product{
 		ID:          id.NewUUID(),
