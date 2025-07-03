@@ -4,23 +4,31 @@ import (
 	"context"
 
 	productDomain "paolojulian.dev/inventory/domain/product"
+	paginationShared "paolojulian.dev/inventory/shared/pagination"
 )
 
 type GetProductListInput struct {
+	Pager  paginationShared.PagerInput
 	Filter *productDomain.ProductFilter
 	Sort   *productDomain.ProductSort
 }
 
 type GetProductListOutput struct {
-	Products []productDomain.Product
+	Products *[]productDomain.Product
+	Pager    *paginationShared.PagerOutput
 }
 
-type GetProductListRepo interface {
-	GetList(ctx context.Context, filter *productDomain.ProductFilter, sort *productDomain.ProductSort) ([]productDomain.Product, error)
+type GetListOutput struct {
+	Products []productDomain.Product
+	Pager    paginationShared.PagerOutput
 }
 
 type GetProductListUseCase struct {
 	repo GetProductListRepo
+}
+
+type GetProductListRepo interface {
+	GetList(ctx context.Context, pager paginationShared.PagerInput, filter *productDomain.ProductFilter, sort *productDomain.ProductSort) (*productDomain.GetListOutput, error)
 }
 
 func NewGetProductListUseCase(repo GetProductListRepo) *GetProductListUseCase {
@@ -28,10 +36,10 @@ func NewGetProductListUseCase(repo GetProductListRepo) *GetProductListUseCase {
 }
 
 func (uc *GetProductListUseCase) Execute(ctx context.Context, input GetProductListInput) (GetProductListOutput, error) {
-	products, err := uc.repo.GetList(ctx, input.Filter, input.Sort)
+	result, err := uc.repo.GetList(ctx, input.Pager, input.Filter, input.Sort)
 	if err != nil {
 		return GetProductListOutput{}, err
 	}
 
-	return GetProductListOutput{Products: products}, nil
+	return GetProductListOutput{Products: result.Products, Pager: result.Pager}, nil
 }
