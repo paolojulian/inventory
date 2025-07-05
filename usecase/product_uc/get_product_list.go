@@ -8,9 +8,9 @@ import (
 )
 
 type GetProductListInput struct {
-	Pager  paginationShared.PagerInput
-	Filter *productDomain.ProductFilter
-	Sort   *productDomain.ProductSort
+	Pager  paginationShared.PagerInput  `json:"pager,omitempty"`
+	Filter *productDomain.ProductFilter `json:"filter,omitempty"`
+	Sort   *productDomain.ProductSort   `json:"sort,omitempty"`
 }
 
 type GetProductListOutput struct {
