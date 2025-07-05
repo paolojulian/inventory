@@ -12,6 +12,17 @@ type PagerOutput struct {
 	PageSize    int
 }
 
+type SortOrder string
+
+const (
+	SortOrderAsc  SortOrder = "ASC"
+	SortOrderDesc SortOrder = "DESC"
+)
+
+func (o SortOrder) IsValid() bool {
+	return o == SortOrderAsc || o == SortOrderDesc
+}
+
 func NewPagerInput(pageNumber int, pageSize int) *PagerInput {
 	return &PagerInput{
 		PageNumber: pageNumber,

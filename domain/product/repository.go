@@ -11,6 +11,6 @@ type GetListOutput struct {
 	Pager    *paginationShared.PagerOutput
 }
 
-type ProductRepository interface {
+type IProductRepository interface {
 	GetList(ctx context.Context, pager *paginationShared.PagerInput, filter *ProductFilter, sort *ProductSort) (GetListOutput, error)
 }

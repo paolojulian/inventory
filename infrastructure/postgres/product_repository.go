@@ -7,6 +7,7 @@ import (
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	"paolojulian.dev/inventory/domain/product"
+	paginationShared "paolojulian.dev/inventory/shared/pagination"
 )
 
 type ProductRepository struct {
@@ -197,4 +198,91 @@ func (r *ProductRepository) ExistsBySKU(ctx context.Context, sku string) (bool, 
 	`, sku).Scan(&exists)
 
 	return exists, err
+}
+
+func (r *ProductRepository) GetList(ctx context.Context, pager paginationShared.PagerInput, filter *product.ProductFilter, sort *product.ProductSort) (*product.GetListOutput, error) {
+	query := `
+		SELECT
+			id,
+			sku,
+			name,
+			description,
+			price_cents,
+			is_active,
+			COUNT(*) OVER() as total_count
+		FROM products
+		WHERE 1=1
+	`
+
+	args := []interface{}{}
+	argPos := 1
+
+	if filter.SearchText != nil {
+		query += ` AND name LIKE $` + strconv.Itoa(argPos) + ` OR sku LIKE $` + strconv.Itoa(argPos)
+		args = append(args, "%"+*filter.SearchText+"%")
+		argPos++
+	}
+
+	if filter.IsActive != nil {
+		query += ` AND is_active = $` + strconv.Itoa(argPos)
+		args = append(args, *filter.IsActive)
+		argPos++
+	}
+
+	if sort.Order.IsValid() && sort.Field.IsValid() {
+		if *sort.Field == product.ProductSortFieldName {
+			query += ` ORDER BY name ` + string(*sort.Order)
+		}
+
+		if *sort.Field == product.ProductSortFieldSKU {
+			query += ` ORDER BY sku ` + string(*sort.Order)
+		}
+
+		if *sort.Field == product.ProductSortFieldPrice {
+			query += ` ORDER BY price_cents ` + string(*sort.Order)
+		}
+	}
+
+	query += ` LIMIT $` + strconv.Itoa(argPos)
+	query += ` OFFSET $` + strconv.Itoa(argPos)
+
+	args = append(args, pager.PageSize, pager.PageNumber*pager.PageSize)
+
+	rows, err := r.db.Query(ctx, query, args...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	products := []product.Product{}
+	var totalItems int
+
+	for rows.Next() {
+		var p product.Product
+		var priceCents int
+
+		if err := rows.Scan(
+			&p.ID,
+			&p.SKU,
+			&p.Name,
+			&p.Description,
+			&priceCents,
+			&p.IsActive,
+			&totalItems,
+		); err != nil {
+			return nil, err
+		}
+
+		p.Price = product.Money{Cents: priceCents}
+		products = append(products, p)
+	}
+
+	pagerResults := paginationShared.PagerOutput{
+		TotalItems:  totalItems,
+		TotalPages:  totalItems / pager.PageSize,
+		CurrentPage: pager.PageNumber,
+		PageSize:    pager.PageSize,
+	}
+
+	return &product.GetListOutput{Products: &products, Pager: &pagerResults}, nil
 }

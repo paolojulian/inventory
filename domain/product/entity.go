@@ -1,6 +1,9 @@
 package product
 
-import "paolojulian.dev/inventory/pkg/id"
+import (
+	"paolojulian.dev/inventory/pkg/id"
+	paginationShared "paolojulian.dev/inventory/shared/pagination"
+)
 
 type Product struct {
 	ID          string
@@ -9,6 +12,17 @@ type Product struct {
 	Description Description
 	Price       Money
 	IsActive    bool
+}
+
+func NewProduct(sku SKU, name string, description Description, priceCents int) *Product {
+	return &Product{
+		ID:          id.NewUUID(),
+		SKU:         sku,
+		Name:        name,
+		Description: description,
+		Price:       Money{Cents: priceCents},
+		IsActive:    true,
+	}
 }
 
 type ProductSummary struct {
@@ -23,18 +37,26 @@ type ProductFilter struct {
 	IsActive   *bool
 }
 
-type ProductSort struct {
-	Field string
-	Order string
+// ================================
+// SORTING
+// ================================
+type ProductSortField string
+
+const (
+	ProductSortFieldName  ProductSortField = "name"
+	ProductSortFieldSKU   ProductSortField = "sku"
+	ProductSortFieldPrice ProductSortField = "price"
+)
+
+func (f ProductSortField) IsValid() bool {
+	return f == ProductSortFieldName || f == ProductSortFieldSKU || f == ProductSortFieldPrice
 }
 
-func NewProduct(sku SKU, name string, description Description, priceCents int) *Product {
-	return &Product{
-		ID:          id.NewUUID(),
-		SKU:         sku,
-		Name:        name,
-		Description: description,
-		Price:       Money{Cents: priceCents},
-		IsActive:    true,
-	}
+type ProductSort struct {
+	Field *ProductSortField           `json:"field,omitempty"`
+	Order *paginationShared.SortOrder `json:"order,omitempty"`
 }
+
+// ================================
+// END SORTING
+// ================================
