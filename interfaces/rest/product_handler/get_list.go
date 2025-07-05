@@ -15,6 +15,24 @@ func GetListHandler(uc *product_uc.GetProductListUseCase) gin.HandlerFunc {
 			ctx.JSON(http.StatusBadRequest, gin.H{
 				"message": "Invalid Input",
 			})
+			return
+		}
+
+		// Do checks for sorts
+		if input.Sort != nil {
+			if !input.Sort.Field.IsValid() {
+				ctx.JSON(http.StatusBadRequest, gin.H{
+					"message": "Invalid Sort Field",
+				})
+				return
+			}
+
+			if !input.Sort.Order.IsValid() {
+				ctx.JSON(http.StatusBadRequest, gin.H{
+					"message": "Invalid Sort Order",
+				})
+				return
+			}
 		}
 
 		output, err := uc.Execute(ctx, input)
