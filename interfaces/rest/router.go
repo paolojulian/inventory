@@ -36,6 +36,7 @@ func registerRoutesProduct(r *gin.Engine, handlers *ProductHandlers) {
 	}
 
 	productGroup.POST("", product_handler.CreateHandler(handlers.Create))
+	productGroup.GET("", product_handler.GetListHandler(handlers.GetList))
 	productGroup.DELETE("/:id", product_handler.DeleteHandler(handlers.Delete))
 	productGroup.PUT("/:id", product_handler.UpdateHandler(handlers.Update))
 	productGroup.POST("/:id/activate", product_handler.ActivateHandler(handlers.Activate))

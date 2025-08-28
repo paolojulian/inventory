@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"context"
+	"log"
 	"strconv"
 	"strings"
 
@@ -200,7 +201,13 @@ func (r *ProductRepository) ExistsBySKU(ctx context.Context, sku string) (bool, 
 	return exists, err
 }
 
-func (r *ProductRepository) GetList(ctx context.Context, pager paginationShared.PagerInput, filter *product.ProductFilter, sort *product.ProductSort) (*product.GetListOutput, error) {
+func (r *ProductRepository) GetList(
+	ctx context.Context,
+	pager paginationShared.PagerInput,
+	filter *product.ProductFilter,
+	sort *product.ProductSort,
+) (*product.GetListOutput, error) {
+	log.Fatal("test")
 	query := `
 		SELECT
 			id,
@@ -217,19 +224,21 @@ func (r *ProductRepository) GetList(ctx context.Context, pager paginationShared.
 	args := []interface{}{}
 	argPos := 1
 
-	if filter.SearchText != nil {
-		query += ` AND name LIKE $` + strconv.Itoa(argPos) + ` OR sku LIKE $` + strconv.Itoa(argPos)
-		args = append(args, "%"+*filter.SearchText+"%")
-		argPos++
+	if filter != nil {
+		if filter.SearchText != nil {
+			query += ` AND name LIKE $` + strconv.Itoa(argPos) + ` OR sku LIKE $` + strconv.Itoa(argPos)
+			args = append(args, "%"+*filter.SearchText+"%")
+			argPos++
+		}
+
+		if filter.IsActive != nil {
+			query += ` AND is_active = $` + strconv.Itoa(argPos)
+			args = append(args, *filter.IsActive)
+			argPos++
+		}
 	}
 
-	if filter.IsActive != nil {
-		query += ` AND is_active = $` + strconv.Itoa(argPos)
-		args = append(args, *filter.IsActive)
-		argPos++
-	}
-
-	if sort.Order.IsValid() && sort.Field.IsValid() {
+	if sort != nil && sort.Order.IsValid() && sort.Field.IsValid() {
 		if *sort.Field == product.ProductSortFieldName {
 			query += ` ORDER BY name ` + string(*sort.Order)
 		}

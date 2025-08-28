@@ -17,6 +17,7 @@ type ProductHandlers struct {
 	Deactivate *productUC.DeactivateProductUseCase
 	Delete     *productUC.DeleteProductUseCase
 	Update     *productUC.UpdateProductBasicUseCase
+	GetList    *productUC.GetProductListUseCase
 }
 
 type AuthHandlers struct {

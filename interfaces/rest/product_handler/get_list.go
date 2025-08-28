@@ -11,7 +11,7 @@ func GetListHandler(uc *product_uc.GetProductListUseCase) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var input product_uc.GetProductListInput
 
-		if err := ctx.ShouldBindQuery(&input); err != nil {
+		if err := ctx.ShouldBindJSON(&input); err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{
 				"message": "Invalid Input",
 			})
@@ -35,6 +35,14 @@ func GetListHandler(uc *product_uc.GetProductListUseCase) gin.HandlerFunc {
 			}
 		}
 
+		// Do checks for pagination
+		if !input.Pager.IsValid() {
+			ctx.JSON(http.StatusBadRequest, gin.H{
+				"message": "Invalid pager values",
+			})
+			return;
+		}
+
 		output, err := uc.Execute(ctx, input)
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, gin.H{
@@ -45,8 +53,8 @@ func GetListHandler(uc *product_uc.GetProductListUseCase) gin.HandlerFunc {
 
 		ctx.JSON(http.StatusOK, gin.H{
 			"message":  "Products fetched successfully",
-			"products": output.Products,
-			"pager":    output.Pager,
+			"products": &output.Products,
+			"pager":    &output.Pager,
 		})
 		return
 	}

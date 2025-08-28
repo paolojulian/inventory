@@ -1,15 +1,19 @@
 package paginationShared
 
 type PagerInput struct {
-	PageNumber int
-	PageSize   int
+	PageNumber int `json:"page"`
+	PageSize   int `json:"size"`
+}
+
+func (p *PagerInput) IsValid() bool {
+	return p.PageNumber > 0 && p.PageSize > 0
 }
 
 type PagerOutput struct {
-	TotalItems  int
-	TotalPages  int
-	CurrentPage int
-	PageSize    int
+	TotalItems  int `json:"total_items"`
+	TotalPages  int `json:"total_pages"`
+	CurrentPage int `json:"current_page"`
+	PageSize    int `json:"page_size"`
 }
 
 type SortOrder string

@@ -8,7 +8,7 @@ import (
 )
 
 type GetProductListInput struct {
-	Pager  paginationShared.PagerInput  `json:"pager,omitempty"`
+	Pager  paginationShared.PagerInput  `json:"pager"`
 	Filter *productDomain.ProductFilter `json:"filter,omitempty"`
 	Sort   *productDomain.ProductSort   `json:"sort,omitempty"`
 }
@@ -35,11 +35,11 @@ func NewGetProductListUseCase(repo GetProductListRepo) *GetProductListUseCase {
 	return &GetProductListUseCase{repo}
 }
 
-func (uc *GetProductListUseCase) Execute(ctx context.Context, input GetProductListInput) (GetProductListOutput, error) {
+func (uc *GetProductListUseCase) Execute(ctx context.Context, input GetProductListInput) (*GetProductListOutput, error) {
 	result, err := uc.repo.GetList(ctx, input.Pager, input.Filter, input.Sort)
 	if err != nil {
-		return GetProductListOutput{}, err
+		return &GetProductListOutput{}, err
 	}
 
-	return GetProductListOutput{Products: result.Products, Pager: result.Pager}, nil
+	return &GetProductListOutput{Products: result.Products, Pager: result.Pager}, nil
 }
