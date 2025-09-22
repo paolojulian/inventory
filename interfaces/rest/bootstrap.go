@@ -65,6 +65,7 @@ func Bootstrap() *Application {
 			Deactivate: productUC.NewDeactivateProductUseCase(productRepo),
 			Delete:     productUC.NewDeleteProductUseCase(productRepo),
 			Update:     productUC.NewUpdateProductBasicUseCase(productRepo),
+			GetList:    productUC.NewGetProductListUseCase(productRepo),
 		},
 		Auth: &AuthHandlers{
 			Login: user_uc.NewLoginUseCase(userRepo),

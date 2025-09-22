@@ -2,7 +2,6 @@ package postgres
 
 import (
 	"context"
-	"log"
 	"strconv"
 	"strings"
 
@@ -207,7 +206,6 @@ func (r *ProductRepository) GetList(
 	filter *product.ProductFilter,
 	sort *product.ProductSort,
 ) (*product.GetListOutput, error) {
-	log.Fatal("test")
 	query := `
 		SELECT
 			id,
@@ -253,9 +251,11 @@ func (r *ProductRepository) GetList(
 	}
 
 	query += ` LIMIT $` + strconv.Itoa(argPos)
+	argPos++
 	query += ` OFFSET $` + strconv.Itoa(argPos)
 
-	args = append(args, pager.PageSize, pager.PageNumber*pager.PageSize)
+	offset := (pager.PageNumber - 1) * pager.PageSize
+	args = append(args, pager.PageSize, offset)
 
 	rows, err := r.db.Query(ctx, query, args...)
 	if err != nil {
@@ -286,9 +286,10 @@ func (r *ProductRepository) GetList(
 		products = append(products, p)
 	}
 
+	totalPages := (totalItems + pager.PageSize - 1) / pager.PageSize // Ceiling division
 	pagerResults := paginationShared.PagerOutput{
 		TotalItems:  totalItems,
-		TotalPages:  totalItems / pager.PageSize,
+		TotalPages:  totalPages,
 		CurrentPage: pager.PageNumber,
 		PageSize:    pager.PageSize,
 	}

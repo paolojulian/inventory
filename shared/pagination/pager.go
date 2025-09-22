@@ -1,8 +1,8 @@
 package paginationShared
 
 type PagerInput struct {
-	PageNumber int `json:"page"`
-	PageSize   int `json:"size"`
+	PageNumber int `json:"page" form:"page"`
+	PageSize   int `json:"size" form:"size"`
 }
 
 func (p *PagerInput) IsValid() bool {

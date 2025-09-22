@@ -18,6 +18,10 @@ func TestActiveProduct_ValidInput(t *testing.T) {
 	bootstrap := rest.Bootstrap()
 	ctx := context.Background()
 
+	// == Cleanup ==
+	defer cleanupTables(context.Background(), bootstrap.DB)
+	defer bootstrap.DBCleanup()
+
 	// == Create test data==
 	productRepo := postgres.NewProductRepository(bootstrap.DB)
 	product := factory.NewTestProduct()
@@ -42,8 +46,4 @@ func TestActiveProduct_ValidInput(t *testing.T) {
 	assert.NoError(t, err)
 
 	assert.Equal(t, true, updatedProduct.IsActive)
-
-	// == Cleanup ==
-	cleanupTables(context.Background(), bootstrap.DB)
-	bootstrap.DBCleanup()
 }
