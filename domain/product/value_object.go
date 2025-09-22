@@ -41,7 +41,7 @@ func NewDescription(raw string) (Description, error) {
 }
 
 type Money struct {
-	Cents int
+	Cents int `json:"cents"`
 }
 
 func (m Money) IsZero() bool {

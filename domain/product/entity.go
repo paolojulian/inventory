@@ -6,12 +6,12 @@ import (
 )
 
 type Product struct {
-	ID          string
-	SKU         SKU
-	Name        string
-	Description Description
-	Price       Money
-	IsActive    bool
+	ID          string      `json:"id"`
+	SKU         SKU         `json:"sku"`
+	Name        string      `json:"name"`
+	Description Description `json:"description"`
+	Price       Money       `json:"price"`
+	IsActive    bool        `json:"is_active"`
 }
 
 func NewProduct(sku SKU, name string, description Description, priceCents int) *Product {
