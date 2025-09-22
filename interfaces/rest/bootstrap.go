@@ -49,6 +49,7 @@ func Bootstrap() *Application {
 	if err := postgres.MigrateSchema(db); err != nil {
 		log.Fatalf("unable to migrate schema: %v", err)
 	}
+	println("schema migrated successfully.")
 
 	if err := postgres.PopulateInitialData(db); err != nil {
 		log.Fatalf("unable to populate initial data: %v", err)

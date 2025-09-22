@@ -1,0 +1,9 @@
+-- Remove all initial products
+DELETE FROM products WHERE sku IN (
+    'SKU001', 'SKU002', 'SKU003', 'SKU004', 'SKU005',
+    'SKU006', 'SKU007', 'SKU008', 'SKU009', 'SKU010',
+    'SKU011', 'SKU012', 'SKU013', 'SKU014', 'SKU015',
+    'SKU016', 'SKU017', 'SKU018', 'SKU019', 'SKU020',
+    'SKU021', 'SKU022', 'SKU023', 'SKU024', 'SKU025',
+    'SKU026', 'SKU027', 'SKU028', 'SKU029', 'SKU030'
+);
