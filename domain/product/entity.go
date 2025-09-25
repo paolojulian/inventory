@@ -33,8 +33,8 @@ type ProductSummary struct {
 }
 
 type ProductFilter struct {
-	SearchText *string
-	IsActive   *bool
+	SearchText *string `json:"search_text" form:"filter.search_text"`
+	IsActive   *bool   `json:"is_active" form:"filter.is_active"`
 }
 
 // ================================
