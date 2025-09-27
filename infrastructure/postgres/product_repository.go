@@ -224,8 +224,8 @@ func (r *ProductRepository) GetList(
 
 	if filter != nil {
 		if filter.SearchText != nil {
-			query += ` AND name LIKE $` + strconv.Itoa(argPos) + ` OR sku LIKE $` + strconv.Itoa(argPos)
-			args = append(args, "%"+*filter.SearchText+"%")
+			query += ` AND (LOWER(name) LIKE $` + strconv.Itoa(argPos) + ` OR LOWER(sku) LIKE $` + strconv.Itoa(argPos) + `)`
+			args = append(args, "%"+strings.ToLower(*filter.SearchText)+"%")
 			argPos++
 		}
 
