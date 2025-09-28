@@ -248,6 +248,8 @@ func (r *ProductRepository) GetList(
 		if *sort.Field == product.ProductSortFieldPrice {
 			query += ` ORDER BY price_cents ` + string(*sort.Order)
 		}
+	} else {
+		query += ` ORDER BY created_at DESC`
 	}
 
 	query += ` LIMIT $` + strconv.Itoa(argPos)

@@ -26,7 +26,7 @@ func UpdateHandler(uc *productUC.UpdateProductBasicUseCase) gin.HandlerFunc {
 			return
 		}
 
-		_, err := uc.Execute(ctx, productID, input)
+		result, err := uc.Execute(ctx, productID, input)
 
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, gin.H{
@@ -37,6 +37,7 @@ func UpdateHandler(uc *productUC.UpdateProductBasicUseCase) gin.HandlerFunc {
 
 		ctx.JSON(http.StatusOK, gin.H{
 			"message": "product updated successfully",
+			"product": result.Product,
 		})
 	}
 }
