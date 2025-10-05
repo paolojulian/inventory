@@ -298,3 +298,26 @@ func (r *ProductRepository) GetList(
 
 	return &product.GetListOutput{Products: &products, Pager: &pagerResults}, nil
 }
+
+func (r *ProductRepository) GetSummary(ctx context.Context, productID string) (*product.ProductSummary, error) {
+	row := r.db.QueryRow(ctx, `
+		SELECT id, sku, name, price_cents
+		FROM products
+		WHERE id = $1
+	`, productID)
+
+	var summary product.ProductSummary
+	var priceCents int
+
+	if err := row.Scan(
+		&summary.ID,
+		&summary.SKU,
+		&summary.Name,
+		&priceCents,
+	); err != nil {
+		return nil, err
+	}
+
+	summary.Price = product.Money{Cents: priceCents}
+	return &summary, nil
+}

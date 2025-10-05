@@ -7,7 +7,9 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"paolojulian.dev/inventory/config"
 	"paolojulian.dev/inventory/infrastructure/postgres"
+	inventoryUC "paolojulian.dev/inventory/usecase/inventory_uc"
 	productUC "paolojulian.dev/inventory/usecase/product_uc"
+	stockUC "paolojulian.dev/inventory/usecase/stock_uc"
 	"paolojulian.dev/inventory/usecase/user_uc"
 )
 
@@ -24,9 +26,27 @@ type AuthHandlers struct {
 	Login *user_uc.LoginUseCase
 }
 
+type StockHandlers struct {
+	Create  *stockUC.CreateStockEntryUseCase
+	GetList *stockUC.ListStockEntriesUseCase
+	Get     *stockUC.GetStockEntryUseCase
+	Update  *stockUC.UpdateStockEntryUseCase
+	Delete  *stockUC.DeleteStockEntryUseCase
+}
+
+type InventoryHandlers struct {
+	GetCurrentStock *inventoryUC.GetCurrentStockUseCase
+	GetAllStock     *inventoryUC.GetAllCurrentStockUseCase
+	GetSummary      *inventoryUC.GetInventorySummaryUseCase
+	GetLowStock     *inventoryUC.GetLowStockUseCase
+	GetOutOfStock   *inventoryUC.GetOutOfStockUseCase
+}
+
 type Handlers struct {
-	Product *ProductHandlers
-	Auth    *AuthHandlers
+	Product   *ProductHandlers
+	Auth      *AuthHandlers
+	Stock     *StockHandlers
+	Inventory *InventoryHandlers
 }
 
 type Application struct {
@@ -58,6 +78,9 @@ func Bootstrap() *Application {
 	// Wire the repo to use cases
 	productRepo := postgres.NewProductRepository(db)
 	userRepo := postgres.NewUserRepository(db)
+	stockRepo := postgres.NewStockRepository(db)
+	warehouseRepo := postgres.NewWarehouseRepository(db)
+	inventoryRepo := postgres.NewInventoryRepository(db)
 
 	handlers := &Handlers{
 		Product: &ProductHandlers{
@@ -71,11 +94,27 @@ func Bootstrap() *Application {
 		Auth: &AuthHandlers{
 			Login: user_uc.NewLoginUseCase(userRepo),
 		},
+		Stock: &StockHandlers{
+			Create:  stockUC.NewCreateStockEntryUseCase(stockRepo),
+			GetList: stockUC.NewListStockEntriesUseCase(stockRepo),
+			Get:     stockUC.NewGetStockEntryUseCase(stockRepo, productRepo, warehouseRepo, userRepo),
+			Update:  stockUC.NewUpdateStockEntryUseCase(stockRepo),
+			Delete:  stockUC.NewDeleteStockEntryUseCase(stockRepo),
+		},
+		Inventory: &InventoryHandlers{
+			GetCurrentStock: inventoryUC.NewGetCurrentStockUseCase(inventoryRepo),
+			GetAllStock:     inventoryUC.NewGetAllCurrentStockUseCase(inventoryRepo),
+			GetSummary:      inventoryUC.NewGetInventorySummaryUseCase(inventoryRepo),
+			GetLowStock:     inventoryUC.NewGetLowStockUseCase(inventoryRepo),
+			GetOutOfStock:   inventoryUC.NewGetOutOfStockUseCase(inventoryRepo),
+		},
 	}
 
 	router := setupRouter()
 	registerRoutesProduct(router, handlers.Product)
 	registerRoutesAuth(router, handlers.Auth)
+	registerRoutesStock(router, handlers.Stock)
+	registerRoutesInventory(router, handlers.Inventory)
 
 	return &Application{
 		Router:    router,

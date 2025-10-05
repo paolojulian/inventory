@@ -6,6 +6,7 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	userDomain "paolojulian.dev/inventory/domain/user"
+	warehouseDomain "paolojulian.dev/inventory/domain/warehouse"
 )
 
 type UserRepository struct {
@@ -71,4 +72,43 @@ func (r *UserRepository) Save(ctx context.Context, userToSave *userDomain.User) 
 	}
 
 	return &created, nil
+}
+
+func (r *UserRepository) GetSummary(ctx context.Context, userID string) (*userDomain.UserSummary, error) {
+	row := r.db.QueryRow(ctx, `
+		SELECT id, first_name, last_name
+		FROM users
+		WHERE id = $1
+	`, userID)
+
+	var summary userDomain.UserSummary
+	if err := row.Scan(
+		&summary.ID,
+		&summary.FirstName,
+		&summary.LastName,
+	); err != nil {
+		return nil, err
+	}
+
+	return &summary, nil
+}
+
+// GetWarehouseSummary temporarily uses user data as warehouse data
+// TODO: Create proper warehouse repository when warehouse management is implemented
+func (r *UserRepository) GetWarehouseSummary(ctx context.Context, warehouseID string) (*warehouseDomain.WarehouseSummary, error) {
+	row := r.db.QueryRow(ctx, `
+		SELECT id, first_name
+		FROM users
+		WHERE id = $1
+	`, warehouseID)
+
+	var summary warehouseDomain.WarehouseSummary
+	if err := row.Scan(
+		&summary.ID,
+		&summary.Name,
+	); err != nil {
+		return nil, err
+	}
+
+	return &summary, nil
 }
