@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"testing"
 
 	"github.com/gin-gonic/gin"
@@ -14,12 +15,16 @@ import (
 )
 
 func TestActiveProduct_ValidInput(t *testing.T) {
+	// Set test environment
+	os.Setenv("APP_ENV", "test")
 	gin.SetMode(gin.TestMode)
 	bootstrap := rest.Bootstrap()
 	ctx := context.Background()
 
 	// == Cleanup ==
-	defer cleanupTables(context.Background(), bootstrap.DB)
+	if err := cleanupTables(ctx, bootstrap.DB); err != nil {
+		t.Fatalf("Failed to cleanup tables: %v", err)
+	}
 	defer bootstrap.DBCleanup()
 
 	// == Create test data==
