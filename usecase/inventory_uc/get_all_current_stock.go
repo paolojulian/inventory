@@ -7,7 +7,7 @@ import (
 )
 
 type GetAllCurrentStockInput struct {
-	WarehouseID string `json:"warehouse_id" binding:"required"`
+	// No input needed - uses default warehouse
 }
 
 type GetAllCurrentStockOutput struct {
@@ -27,7 +27,7 @@ func NewGetAllCurrentStockUseCase(repo GetAllCurrentStockRepository) *GetAllCurr
 }
 
 func (uc *GetAllCurrentStockUseCase) Execute(ctx context.Context, input GetAllCurrentStockInput) (*GetAllCurrentStockOutput, error) {
-	stocks, err := uc.repo.GetAllCurrentStock(ctx, input.WarehouseID)
+	stocks, err := uc.repo.GetAllCurrentStock(ctx, "550e8400-e29b-41d4-a716-446655440000")
 	if err != nil {
 		return nil, err
 	}

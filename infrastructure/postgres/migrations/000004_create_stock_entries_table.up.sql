@@ -2,7 +2,7 @@ CREATE TABLE
     IF NOT EXISTS stock_entries (
         id UUID PRIMARY KEY,
         product_id UUID NOT NULL REFERENCES products(id) ON DELETE CASCADE,
-        warehouse_id UUID NOT NULL,
+        warehouse_id UUID NOT NULL REFERENCES warehouses(id) ON DELETE CASCADE,
         user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
         quantity_delta INTEGER NOT NULL,
         reason TEXT NOT NULL CHECK (reason IN ('restock', 'sale', 'damage', 'transfer_in', 'transfer_out', 'adjustment')),

@@ -7,7 +7,7 @@ import (
 )
 
 type GetOutOfStockInput struct {
-	WarehouseID string `json:"warehouse_id" binding:"required"`
+	// No input needed - uses default warehouse
 }
 
 type GetOutOfStockOutput struct {
@@ -15,7 +15,7 @@ type GetOutOfStockOutput struct {
 }
 
 type GetOutOfStockRepository interface {
-	GetOutOfStockProducts(ctx context.Context, warehouseID string) ([]*inventory.InventoryItem, error)
+	GetOutOfStockProducts(ctx context.Context) ([]*inventory.InventoryItem, error)
 }
 
 type GetOutOfStockUseCase struct {
@@ -27,7 +27,7 @@ func NewGetOutOfStockUseCase(repo GetOutOfStockRepository) *GetOutOfStockUseCase
 }
 
 func (uc *GetOutOfStockUseCase) Execute(ctx context.Context, input GetOutOfStockInput) (*GetOutOfStockOutput, error) {
-	stocks, err := uc.repo.GetOutOfStockProducts(ctx, input.WarehouseID)
+	stocks, err := uc.repo.GetOutOfStockProducts(ctx)
 	if err != nil {
 		return nil, err
 	}

@@ -78,8 +78,8 @@ func Bootstrap() *Application {
 	// Wire the repo to use cases
 	productRepo := postgres.NewProductRepository(db)
 	userRepo := postgres.NewUserRepository(db)
-	stockRepo := postgres.NewStockRepository(db)
-	warehouseRepo := postgres.NewWarehouseRepository(db)
+	// stockRepo := postgres.NewStockRepository(db)
+	// warehouseRepo := postgres.NewWarehouseRepository(db)
 	inventoryRepo := postgres.NewInventoryRepository(db)
 
 	handlers := &Handlers{
@@ -94,26 +94,24 @@ func Bootstrap() *Application {
 		Auth: &AuthHandlers{
 			Login: user_uc.NewLoginUseCase(userRepo),
 		},
-		Stock: &StockHandlers{
-			Create:  stockUC.NewCreateStockEntryUseCase(stockRepo),
-			GetList: stockUC.NewListStockEntriesUseCase(stockRepo),
-			Get:     stockUC.NewGetStockEntryUseCase(stockRepo, productRepo, warehouseRepo, userRepo),
-			Update:  stockUC.NewUpdateStockEntryUseCase(stockRepo),
-			Delete:  stockUC.NewDeleteStockEntryUseCase(stockRepo),
-		},
+		// Stock: &StockHandlers{
+		// 	Create:  stockUC.NewCreateStockEntryUseCase(stockRepo),
+		// 	GetList: stockUC.NewListStockEntriesUseCase(stockRepo),
+		// 	Get:     stockUC.NewGetStockEntryUseCase(stockRepo, productRepo, warehouseRepo, userRepo),
+		// 	Update:  stockUC.NewUpdateStockEntryUseCase(stockRepo),
+		// 	Delete:  stockUC.NewDeleteStockEntryUseCase(stockRepo),
+		// },
 		Inventory: &InventoryHandlers{
-			GetCurrentStock: inventoryUC.NewGetCurrentStockUseCase(inventoryRepo),
-			GetAllStock:     inventoryUC.NewGetAllCurrentStockUseCase(inventoryRepo),
-			GetSummary:      inventoryUC.NewGetInventorySummaryUseCase(inventoryRepo),
-			GetLowStock:     inventoryUC.NewGetLowStockUseCase(inventoryRepo),
-			GetOutOfStock:   inventoryUC.NewGetOutOfStockUseCase(inventoryRepo),
+			// GetCurrentStock: inventoryUC.NewGetCurrentStockUseCase(inventoryRepo),
+			GetAllStock: inventoryUC.NewGetAllCurrentStockUseCase(inventoryRepo),
+			// GetSummary:      inventoryUC.NewGetInventorySummaryUseCase(inventoryRepo),
 		},
 	}
 
 	router := setupRouter()
 	registerRoutesProduct(router, handlers.Product)
 	registerRoutesAuth(router, handlers.Auth)
-	registerRoutesStock(router, handlers.Stock)
+	// registerRoutesStock(router, handlers.Stock)
 	registerRoutesInventory(router, handlers.Inventory)
 
 	return &Application{

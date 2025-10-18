@@ -7,8 +7,7 @@ import (
 )
 
 type GetCurrentStockInput struct {
-	ProductID   string `json:"product_id" binding:"required"`
-	WarehouseID string `json:"warehouse_id" binding:"required"`
+	ProductID string `json:"product_id" binding:"required"`
 }
 
 type GetCurrentStockOutput struct {
@@ -16,7 +15,7 @@ type GetCurrentStockOutput struct {
 }
 
 type GetCurrentStockRepository interface {
-	GetCurrentStock(ctx context.Context, productID, warehouseID string) (*inventory.InventoryItem, error)
+	GetCurrentStock(ctx context.Context, productID string) (*inventory.InventoryItem, error)
 }
 
 type GetCurrentStockUseCase struct {
@@ -28,7 +27,7 @@ func NewGetCurrentStockUseCase(repo GetCurrentStockRepository) *GetCurrentStockU
 }
 
 func (uc *GetCurrentStockUseCase) Execute(ctx context.Context, input GetCurrentStockInput) (*GetCurrentStockOutput, error) {
-	stock, err := uc.repo.GetCurrentStock(ctx, input.ProductID, input.WarehouseID)
+	stock, err := uc.repo.GetCurrentStock(ctx, input.ProductID)
 	if err != nil {
 		return nil, err
 	}

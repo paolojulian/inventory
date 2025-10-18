@@ -7,7 +7,7 @@ import (
 )
 
 type GetInventorySummaryInput struct {
-	WarehouseID string `json:"warehouse_id" binding:"required"`
+	// No input needed - uses default warehouse
 }
 
 type GetInventorySummaryOutput struct {
@@ -15,7 +15,7 @@ type GetInventorySummaryOutput struct {
 }
 
 type GetInventorySummaryRepository interface {
-	GetInventorySummary(ctx context.Context, warehouseID string) (*inventory.InventorySummary, error)
+	GetInventorySummary(ctx context.Context) (*inventory.InventorySummary, error)
 }
 
 type GetInventorySummaryUseCase struct {
@@ -27,7 +27,7 @@ func NewGetInventorySummaryUseCase(repo GetInventorySummaryRepository) *GetInven
 }
 
 func (uc *GetInventorySummaryUseCase) Execute(ctx context.Context, input GetInventorySummaryInput) (*GetInventorySummaryOutput, error) {
-	summary, err := uc.repo.GetInventorySummary(ctx, input.WarehouseID)
+	summary, err := uc.repo.GetInventorySummary(ctx)
 	if err != nil {
 		return nil, err
 	}

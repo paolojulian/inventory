@@ -25,7 +25,7 @@ func (r *InventoryRepository) GetCurrentStock(ctx context.Context, productID, wa
 		FROM products 
 		WHERE id = $1
 	`
-	
+
 	productRow := r.db.QueryRow(ctx, productQuery, productID)
 	var p product.Product
 	var priceCents int
@@ -43,9 +43,9 @@ func (r *InventoryRepository) GetCurrentStock(ctx context.Context, productID, wa
 		FROM users 
 		WHERE id = $1
 	`
-	
+
 	warehouseRow := r.db.QueryRow(ctx, warehouseQuery, warehouseID)
-	var w warehouse.WarehouseSummary
+	var w warehouse.Warehouse
 	err = warehouseRow.Scan(&w.ID, &w.Name)
 	if err != nil {
 		return nil, err
@@ -57,7 +57,7 @@ func (r *InventoryRepository) GetCurrentStock(ctx context.Context, productID, wa
 		FROM stock_entries 
 		WHERE product_id = $1 AND warehouse_id = $2
 	`
-	
+
 	stockRow := r.db.QueryRow(ctx, stockQuery, productID, warehouseID)
 	var currentStock int
 	var lastUpdated *string
@@ -75,11 +75,11 @@ func (r *InventoryRepository) GetAllCurrentStock(ctx context.Context, warehouseI
 		SELECT 
 			p.id, p.sku, p.name, p.price_cents, p.description, p.is_active,
 			COALESCE(SUM(se.quantity_delta), 0) as current_stock,
-			u.id as warehouse_id, u.first_name as warehouse_name
+			w.id as warehouse_id, w.name as warehouse_name
 		FROM products p
 		LEFT JOIN stock_entries se ON p.id = se.product_id AND se.warehouse_id = $1
-		LEFT JOIN users u ON u.id = $1
-		GROUP BY p.id, p.sku, p.name, p.price_cents, p.description, p.is_active, u.id, u.first_name
+		LEFT JOIN warehouses w ON w.id = $1
+		GROUP BY p.id, p.sku, p.name, p.price_cents, p.description, p.is_active, w.id, w.name
 		ORDER BY p.name
 	`
 
@@ -92,7 +92,7 @@ func (r *InventoryRepository) GetAllCurrentStock(ctx context.Context, warehouseI
 	var stocks []*inventory.InventoryItem
 	for rows.Next() {
 		var p product.Product
-		var w warehouse.WarehouseSummary
+		var w warehouse.Warehouse
 		var priceCents int
 		var currentStock int
 
@@ -177,7 +177,7 @@ func (r *InventoryRepository) GetLowStockProducts(ctx context.Context, warehouse
 	var stocks []*inventory.InventoryItem
 	for rows.Next() {
 		var p product.Product
-		var w warehouse.WarehouseSummary
+		var w warehouse.Warehouse
 		var priceCents int
 		var currentStock int
 
@@ -221,7 +221,7 @@ func (r *InventoryRepository) GetOutOfStockProducts(ctx context.Context, warehou
 	var stocks []*inventory.InventoryItem
 	for rows.Next() {
 		var p product.Product
-		var w warehouse.WarehouseSummary
+		var w warehouse.Warehouse
 		var priceCents int
 		var currentStock int
 

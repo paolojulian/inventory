@@ -7,8 +7,7 @@ import (
 )
 
 type GetLowStockInput struct {
-	WarehouseID string `json:"warehouse_id" binding:"required"`
-	Threshold   int    `json:"threshold,omitempty"`
+	Threshold int `json:"threshold,omitempty"`
 }
 
 type GetLowStockOutput struct {
@@ -16,7 +15,7 @@ type GetLowStockOutput struct {
 }
 
 type GetLowStockRepository interface {
-	GetLowStockProducts(ctx context.Context, warehouseID string, threshold int) ([]*inventory.InventoryItem, error)
+	GetLowStockProducts(ctx context.Context, threshold int) ([]*inventory.InventoryItem, error)
 }
 
 type GetLowStockUseCase struct {
@@ -33,7 +32,7 @@ func (uc *GetLowStockUseCase) Execute(ctx context.Context, input GetLowStockInpu
 		threshold = 10 // Default threshold
 	}
 
-	stocks, err := uc.repo.GetLowStockProducts(ctx, input.WarehouseID, threshold)
+	stocks, err := uc.repo.GetLowStockProducts(ctx, threshold)
 	if err != nil {
 		return nil, err
 	}

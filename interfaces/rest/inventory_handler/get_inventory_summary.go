@@ -9,18 +9,7 @@ import (
 
 func GetInventorySummaryHandler(uc *inventory_uc.GetInventorySummaryUseCase) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		warehouseID := ctx.Query("warehouse_id")
-		
-		if warehouseID == "" {
-			ctx.JSON(http.StatusBadRequest, gin.H{
-				"message": "Warehouse ID is required",
-			})
-			return
-		}
-
-		input := inventory_uc.GetInventorySummaryInput{
-			WarehouseID: warehouseID,
-		}
+		input := inventory_uc.GetInventorySummaryInput{}
 
 		output, err := uc.Execute(ctx, input)
 		if err != nil {

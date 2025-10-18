@@ -10,7 +10,6 @@ import (
 func GetCurrentStockHandler(uc *inventory_uc.GetCurrentStockUseCase) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		productID := ctx.Param("product_id")
-		warehouseID := ctx.Query("warehouse_id")
 		
 		if productID == "" {
 			ctx.JSON(http.StatusBadRequest, gin.H{
@@ -19,16 +18,8 @@ func GetCurrentStockHandler(uc *inventory_uc.GetCurrentStockUseCase) gin.Handler
 			return
 		}
 
-		if warehouseID == "" {
-			ctx.JSON(http.StatusBadRequest, gin.H{
-				"message": "Warehouse ID is required",
-			})
-			return
-		}
-
 		input := inventory_uc.GetCurrentStockInput{
-			ProductID:   productID,
-			WarehouseID: warehouseID,
+			ProductID: productID,
 		}
 
 		output, err := uc.Execute(ctx, input)

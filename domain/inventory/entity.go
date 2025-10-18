@@ -9,9 +9,9 @@ import (
 
 // InventoryItem represents the current stock level of a product in a warehouse
 type InventoryItem struct {
-	Product   *product.Product
-	Warehouse *warehouse.WarehouseSummary
-	Stock     int
+	Product     *product.Product
+	Warehouse   *warehouse.Warehouse
+	Stock       int
 	LastUpdated time.Time
 }
 
@@ -19,21 +19,21 @@ type InventoryItem struct {
 type StockLevel struct {
 	ProductID   string
 	WarehouseID string
-	Quantity  int
-	UpdatedAt time.Time
+	Quantity    int
+	UpdatedAt   time.Time
 }
 
 // InventorySummary represents the overall inventory summary
 type InventorySummary struct {
-	TotalProducts    int
-	TotalStockValue  int64 // in cents
-	LowStockItems    int
-	OutOfStockItems  int
-	LastUpdated      time.Time
+	TotalProducts   int
+	TotalStockValue int64 // in cents
+	LowStockItems   int
+	OutOfStockItems int
+	LastUpdated     time.Time
 }
 
 // NewInventoryItem creates a new InventoryItem instance
-func NewInventoryItem(product *product.Product, warehouse *warehouse.WarehouseSummary, stock int) *InventoryItem {
+func NewInventoryItem(product *product.Product, warehouse *warehouse.Warehouse, stock int) *InventoryItem {
 	return &InventoryItem{
 		Product:     product,
 		Warehouse:   warehouse,

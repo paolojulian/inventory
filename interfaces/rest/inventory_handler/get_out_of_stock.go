@@ -9,18 +9,7 @@ import (
 
 func GetOutOfStockHandler(uc *inventory_uc.GetOutOfStockUseCase) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		warehouseID := ctx.Query("warehouse_id")
-		
-		if warehouseID == "" {
-			ctx.JSON(http.StatusBadRequest, gin.H{
-				"message": "Warehouse ID is required",
-			})
-			return
-		}
-
-		input := inventory_uc.GetOutOfStockInput{
-			WarehouseID: warehouseID,
-		}
+		input := inventory_uc.GetOutOfStockInput{}
 
 		output, err := uc.Execute(ctx, input)
 		if err != nil {
