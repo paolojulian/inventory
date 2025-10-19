@@ -80,7 +80,7 @@ func (r *InventoryRepository) GetAllCurrentStock(ctx context.Context, warehouseI
 		LEFT JOIN stock_entries se ON p.id = se.product_id AND se.warehouse_id = $1
 		LEFT JOIN warehouses w ON w.id = $1
 		GROUP BY p.id, p.sku, p.name, p.price_cents, p.description, p.is_active, w.id, w.name
-		ORDER BY current_stock DESC
+		ORDER BY p.name
 	`
 
 	rows, err := r.db.Query(ctx, query, warehouseID)
