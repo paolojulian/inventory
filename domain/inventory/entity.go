@@ -9,10 +9,10 @@ import (
 
 // InventoryItem represents the current stock level of a product in a warehouse
 type InventoryItem struct {
-	Product     *product.Product
-	Warehouse   *warehouse.Warehouse
-	Stock       int
-	LastUpdated time.Time
+	Product     *product.Product     `json:"product"`
+	Warehouse   *warehouse.Warehouse `json:"warehouse"`
+	Stock       int                  `json:"stock"`
+	LastUpdated time.Time            `json:"last_updated"`
 }
 
 // StockLevel represents a stock level entry

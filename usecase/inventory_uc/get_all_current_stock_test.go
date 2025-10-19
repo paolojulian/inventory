@@ -8,6 +8,7 @@ import (
 	"paolojulian.dev/inventory/domain/inventory"
 	"paolojulian.dev/inventory/domain/product"
 	"paolojulian.dev/inventory/domain/warehouse"
+	paginationShared "paolojulian.dev/inventory/shared/pagination"
 )
 
 type MockGetAllCurrentStockData struct {
@@ -17,8 +18,16 @@ type MockGetAllCurrentStockRepository struct {
 	stocks []*inventory.InventoryItem
 }
 
-func (m *MockGetAllCurrentStockRepository) GetAllCurrentStock(ctx context.Context, warehouseID string) ([]*inventory.InventoryItem, error) {
-	return m.stocks, nil
+func (m *MockGetAllCurrentStockRepository) GetAllCurrentStock(ctx context.Context, warehouseID string, pager paginationShared.PagerInput) (*inventory.GetAllStockOutput, error) {
+	return &inventory.GetAllStockOutput{
+		Stocks: m.stocks,
+		Pager: paginationShared.PagerOutput{
+			TotalItems:  len(m.stocks),
+			TotalPages:  1,
+			CurrentPage: 1,
+			PageSize:    len(m.stocks),
+		},
+	}, nil
 }
 
 func TestGetAllCurrentStock(t *testing.T) {

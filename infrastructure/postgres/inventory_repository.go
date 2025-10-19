@@ -7,6 +7,7 @@ import (
 	"paolojulian.dev/inventory/domain/inventory"
 	"paolojulian.dev/inventory/domain/product"
 	"paolojulian.dev/inventory/domain/warehouse"
+	paginationShared "paolojulian.dev/inventory/shared/pagination"
 )
 
 type InventoryRepository struct {
@@ -70,26 +71,38 @@ func (r *InventoryRepository) GetCurrentStock(ctx context.Context, productID, wa
 }
 
 // GetAllCurrentStock calculates current stock levels for all products
-func (r *InventoryRepository) GetAllCurrentStock(ctx context.Context, warehouseID string) ([]*inventory.InventoryItem, error) {
+func (r *InventoryRepository) GetAllCurrentStock(ctx context.Context, warehouseID string, pager paginationShared.PagerInput) (*inventory.GetAllStockOutput, error) {
 	query := `
+		WITH stock_data AS (
+			SELECT 
+				p.id, p.sku, p.name, p.price_cents, p.description, p.is_active,
+				COALESCE(SUM(se.quantity_delta), 0) as current_stock,
+				w.id as warehouse_id, w.name as warehouse_name
+			FROM products p
+			LEFT JOIN stock_entries se ON p.id = se.product_id AND se.warehouse_id = $1
+			LEFT JOIN warehouses w ON w.id = $1
+			GROUP BY p.id, p.sku, p.name, p.price_cents, p.description, p.is_active, w.id, w.name
+		)
 		SELECT 
-			p.id, p.sku, p.name, p.price_cents, p.description, p.is_active,
-			COALESCE(SUM(se.quantity_delta), 0) as current_stock,
-			w.id as warehouse_id, w.name as warehouse_name
-		FROM products p
-		LEFT JOIN stock_entries se ON p.id = se.product_id AND se.warehouse_id = $1
-		LEFT JOIN warehouses w ON w.id = $1
-		GROUP BY p.id, p.sku, p.name, p.price_cents, p.description, p.is_active, w.id, w.name
-		ORDER BY p.name
+			id, sku, name, price_cents, description, is_active,
+			current_stock,
+			warehouse_id, warehouse_name,
+			COUNT(*) OVER() as total_count
+		FROM stock_data
+		ORDER BY name
+		LIMIT $2 OFFSET $3
 	`
 
-	rows, err := r.db.Query(ctx, query, warehouseID)
+	offset := (pager.PageNumber - 1) * pager.PageSize
+	rows, err := r.db.Query(ctx, query, warehouseID, pager.PageSize, offset)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
 	var stocks []*inventory.InventoryItem
+	var totalItems int
+
 	for rows.Next() {
 		var p product.Product
 		var w warehouse.Warehouse
@@ -100,6 +113,7 @@ func (r *InventoryRepository) GetAllCurrentStock(ctx context.Context, warehouseI
 			&p.ID, &p.SKU, &p.Name, &priceCents, &p.Description, &p.IsActive,
 			&currentStock,
 			&w.ID, &w.Name,
+			&totalItems,
 		)
 		if err != nil {
 			return nil, err
@@ -109,7 +123,15 @@ func (r *InventoryRepository) GetAllCurrentStock(ctx context.Context, warehouseI
 		stocks = append(stocks, inventory.NewInventoryItem(&p, &w, currentStock))
 	}
 
-	return stocks, nil
+	totalPages := (totalItems + pager.PageSize - 1) / pager.PageSize // Ceiling division
+	pagerResults := paginationShared.PagerOutput{
+		TotalItems:  totalItems,
+		TotalPages:  totalPages,
+		CurrentPage: pager.PageNumber,
+		PageSize:    pager.PageSize,
+	}
+
+	return &inventory.GetAllStockOutput{Stocks: stocks, Pager: pagerResults}, nil
 }
 
 // GetInventorySummary calculates overall inventory statistics
