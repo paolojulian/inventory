@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"testing"
 
 	"github.com/gin-gonic/gin"
@@ -14,8 +15,17 @@ import (
 )
 
 func TestCreateProduct__ValidInput(t *testing.T) {
+	// Set test environment
+	os.Setenv("APP_ENV", "test")
 	gin.SetMode(gin.TestMode)
 	bootstrap := rest.Bootstrap()
+	ctx := context.Background()
+
+	// == Cleanup ==
+	if err := cleanupTables(ctx, bootstrap.DB); err != nil {
+		t.Fatalf("Failed to cleanup tables: %v", err)
+	}
+	defer bootstrap.DBCleanup()
 
 	// Prepare input
 	input := map[string]interface{}{
@@ -43,9 +53,6 @@ func TestCreateProduct__ValidInput(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotEmpty(t, response["product"])
 
-	// Cleanup
-	cleanupTables(context.Background(), bootstrap.DB)
-	bootstrap.DBCleanup()
 }
 
 func TestCreateProduct__NoInput(t *testing.T) {
