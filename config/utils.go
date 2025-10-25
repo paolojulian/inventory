@@ -1,11 +1,17 @@
 package config
 
+import "time"
+
 func StringPointer(s string) *string {
 	return &s
 }
 
 func IntPointer(i int) *int {
 	return &i
+}
+
+func TimePointer(t time.Time) *time.Time {
+	return &t
 }
 
 func BoolPointer(b bool) *bool {

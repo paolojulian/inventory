@@ -6,6 +6,10 @@ CREATE TABLE
         user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
         quantity_delta INTEGER NOT NULL,
         reason TEXT NOT NULL CHECK (reason IN ('restock', 'sale', 'damage', 'transfer_in', 'transfer_out', 'adjustment')),
+        supplier_price_cents INTEGER,
+        store_price_cents INTEGER,
+        expiry_date DATE,
+        reorder_date DATE,
         created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
         updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     );
@@ -29,3 +33,9 @@ BEGIN
     END IF;
 END;
 $$;
+
+-- Add column comments
+COMMENT ON COLUMN stock_entries.supplier_price_cents IS 'Optional, for margin tracking';
+COMMENT ON COLUMN stock_entries.store_price_cents IS 'Optional, can override product price';
+COMMENT ON COLUMN stock_entries.expiry_date IS 'For perishable items';
+COMMENT ON COLUMN stock_entries.reorder_date IS 'Reminder for restocking';

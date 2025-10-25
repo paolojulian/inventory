@@ -8,24 +8,32 @@ import (
 )
 
 type StockEntry struct {
-	ID            string
-	QuantityDelta int
-	Reason        StockReason
-	CreatedAt     time.Time
-	ProductID     string
-	WarehouseID   string
-	UserID        string
+	ID                 string
+	QuantityDelta      int
+	Reason             StockReason
+	CreatedAt          time.Time
+	ProductID          string
+	WarehouseID        string
+	UserID             string
+	SupplierPriceCents *int
+	StorePriceCents    *int
+	ExpiryDate         *time.Time
+	ReorderDate        *time.Time
 }
 
-func NewStockEntry(productID, warehouseID, userID string, quantityDelta int, reason StockReason) StockEntry {
+func NewStockEntry(productID, warehouseID, userID string, quantityDelta int, reason StockReason, supplierPriceCents *int, storePriceCents *int, expiryDate *time.Time, reorderDate *time.Time) StockEntry {
 	return StockEntry{
-		ID:            id.NewUUID(),
-		QuantityDelta: quantityDelta,
-		Reason:        reason,
-		CreatedAt:     time.Now(),
-		ProductID:     productID,
-		WarehouseID:   warehouseID,
-		UserID:        userID,
+		ID:                 id.NewUUID(),
+		QuantityDelta:      quantityDelta,
+		Reason:             reason,
+		CreatedAt:          time.Now(),
+		ProductID:          productID,
+		WarehouseID:        warehouseID,
+		UserID:             userID,
+		SupplierPriceCents: supplierPriceCents,
+		StorePriceCents:    storePriceCents,
+		ExpiryDate:         expiryDate,
+		ReorderDate:        reorderDate,
 	}
 }
 
@@ -36,6 +44,13 @@ func (s *StockEntry) Validate() error {
 
 	if s.Reason == "" {
 		return ErrReasonEmpty
+	}
+
+	if s.SupplierPriceCents != nil && *s.SupplierPriceCents < 0 {
+		return ErrInvalidSupplierPrice
+	}
+	if s.StorePriceCents != nil && *s.StorePriceCents < 0 {
+		return ErrInvalidStorePrice
 	}
 
 	return nil
