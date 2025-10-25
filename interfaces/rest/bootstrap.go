@@ -71,10 +71,6 @@ func Bootstrap() *Application {
 	}
 	println("schema migrated successfully.")
 
-	if err := postgres.PopulateInitialData(db); err != nil {
-		log.Fatalf("unable to populate initial data: %v", err)
-	}
-
 	// Wire the repo to use cases
 	productRepo := postgres.NewProductRepository(db)
 	userRepo := postgres.NewUserRepository(db)

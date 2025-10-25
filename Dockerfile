@@ -1,5 +1,5 @@
 # Use the correct Go base image
-FROM golang:1.23-alpine AS builder
+FROM golang:1.23-alpine
 
 WORKDIR /usr/src/app
 
