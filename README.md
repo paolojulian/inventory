@@ -68,4 +68,96 @@
 
 ---
 
-Let me know when you're ready to scaffold the initial codebase or begin defining the first entity/use case.
+✅ Refined MVP Breakdown
+
+🏠 Home (Dashboard)
+
+The quick-glance health view of your inventory.
+
+Keep these two — perfect indicators:
+• ✅ Show Low stock / Out of stock
+• ✅ Show Near expiry / Expired
+
+Suggestion:
+• Keep it simple → 4 boxes or list summaries.
+• Add “View All” links that go to filtered Inventory pages.
+
+⸻
+
+📦 Stock Entry
+
+This is the core of inventory movement (ledger of changes).
+
+Perfect MVP scope:
+• ✅ Add / Remove Stock
+• Optional: Reason selector (restock, sale, damage, adjustment)
+• ✅ Fields:
+• Expiry Date (for perishable items)
+• Supplier Price (optional, internal data)
+• Store Price (public retail price)
+• Reorder Date (for reminders)
+
+Optional for later (not MVP-critical):
+• Supplier info
+• Multiple batch tracking
+
+⸻
+
+🧾 Inventory
+
+The live snapshot of all quantities.
+
+Excellent MVP goals:
+• ✅ List all product stocks
+• ✅ Show count (quantity)
+• ✅ Visual statuses:
+• 🟠 Low stock
+• 🔴 Out of stock
+• 🟠 Near expiry
+• 🔴 Expired
+
+Recommendation:
+• Let user filter/sort by:
+• Category
+• Stock status
+• Expiry date
+
+⸻
+
+🧺 Products
+
+The catalog of what you track.
+
+MVP-perfect as written:
+• ✅ List of products
+• ✅ Add / Edit / Delete product
+
+Optional later:
+• Product categories
+• Variants (sizes, colors, etc.)
+• Product images
+
+⸻
+
+💡 MVP Flow Summary
+
+Step User Action System Response
+1 Add Product Creates product entry
+2 Add Stock Entry Updates stock + records history
+3 Dashboard Shows low/out-of-stock alerts
+4 Inventory Lists all products with stock counts & statuses
+
+⸻
+
+🚀 You can go live with this
+
+If you build just this, you already have a real operational tool for:
+• Small retail shops
+• Cafes or bakeries
+• Pharmacies or groceries
+• Hardware stores
+
+⸻
+
+Would you like me to draw the screen flow wireframe next (Home → Inventory → Product → Stock Entry)?
+It’ll help visualize how users move through this MVP.
