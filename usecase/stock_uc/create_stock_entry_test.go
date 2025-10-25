@@ -46,3 +46,64 @@ func TestCreateStockEntry_ValidInput(t *testing.T) {
 	assert.Equal(t, input.ReorderDate, result.StockEntry.ReorderDate)
 	assert.Equal(t, stock.ReasonSale, result.StockEntry.Reason)
 }
+
+func TestCreateStockEntry_InvalidReason(t *testing.T) {
+	repo := &MockCreateStockEntryRepo{}
+	uc := NewCreateStockEntryUseCase(repo)
+
+	input := StockEntryInput{
+		QuantityDelta:      10,
+		Reason:             "invalid",
+		ProductID:          "123",
+		WarehouseID:        "456",
+		SupplierPriceCents: config.IntPointer(1000),
+		StorePriceCents:    config.IntPointer(1500),
+		ExpiryDate:         config.TimePointer(time.Now().Add(time.Hour * 24 * 30)),
+		ReorderDate:        config.TimePointer(time.Now().Add(time.Hour * 24 * 30)),
+	}
+
+	result, err := uc.Execute(context.Background(), &input, "123")
+
+	assert.Error(t, err)
+	assert.Nil(t, result)
+	assert.Equal(t, ErrInvalidReason, err)
+}
+
+func TestCreateStockEntry_InvalidSupplierPrice(t *testing.T) {
+	repo := &MockCreateStockEntryRepo{}
+	uc := NewCreateStockEntryUseCase(repo)
+
+	input := StockEntryInput{
+		QuantityDelta:      10,
+		Reason:             string(stock.ReasonSale),
+		ProductID:          "123",
+		WarehouseID:        "456",
+		SupplierPriceCents: config.IntPointer(-1),
+	}
+
+	result, err := uc.Execute(context.Background(), &input, "123")
+
+	assert.Error(t, err)
+	assert.Nil(t, result)
+	assert.Equal(t, ErrInvalidSupplierPrice, err)
+}
+
+func TestCreateStockEntry_InvalidStorePrice(t *testing.T) {
+	repo := &MockCreateStockEntryRepo{}
+	uc := NewCreateStockEntryUseCase(repo)
+
+	input := StockEntryInput{
+		QuantityDelta:      10,
+		Reason:             string(stock.ReasonSale),
+		ProductID:          "123",
+		WarehouseID:        "456",
+		SupplierPriceCents: config.IntPointer(1000),
+		StorePriceCents:    config.IntPointer(-1),
+	}
+
+	result, err := uc.Execute(context.Background(), &input, "123")
+
+	assert.Error(t, err)
+	assert.Nil(t, result)
+	assert.Equal(t, ErrInvalidStorePrice, err)
+}

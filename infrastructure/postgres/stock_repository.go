@@ -20,10 +20,34 @@ func NewStockRepository(db *pgxpool.Pool) *StockRepository {
 
 func (r *StockRepository) CreateStockEntry(ctx context.Context, stockEntry *stock.StockEntry) (*stock.StockEntry, error) {
 	row := r.db.QueryRow(ctx, `
-		INSERT INTO stock_entries (id, product_id, warehouse_id, user_id, quantity_delta, reason, created_at)
-		VALUES ($1, $2, $3, $4, $5, $6, $7)
-		RETURNING id, product_id, warehouse_id, user_id, quantity_delta, reason, created_at
-	`, stockEntry.ID, stockEntry.ProductID, stockEntry.WarehouseID, stockEntry.UserID, stockEntry.QuantityDelta, stockEntry.Reason, stockEntry.CreatedAt)
+		INSERT INTO stock_entries (
+			id,
+			product_id,
+			warehouse_id,
+			user_id,
+			quantity_delta,
+			reason,
+			supplier_price_cents,
+			store_price_cents,
+			expiry_date,
+			reorder_date,
+			created_at
+		)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+		RETURNING id, product_id, warehouse_id, user_id, quantity_delta, reason, supplier_price_cents, store_price_cents, expiry_date, reorder_date, created_at
+	`,
+		stockEntry.ID,
+		stockEntry.ProductID,
+		stockEntry.WarehouseID,
+		stockEntry.UserID,
+		stockEntry.QuantityDelta,
+		stockEntry.Reason,
+		stockEntry.SupplierPriceCents,
+		stockEntry.StorePriceCents,
+		stockEntry.ExpiryDate,
+		stockEntry.ReorderDate,
+		stockEntry.CreatedAt,
+	)
 
 	var created stock.StockEntry
 	if err := row.Scan(
@@ -33,6 +57,10 @@ func (r *StockRepository) CreateStockEntry(ctx context.Context, stockEntry *stoc
 		&created.UserID,
 		&created.QuantityDelta,
 		&created.Reason,
+		&created.SupplierPriceCents,
+		&created.StorePriceCents,
+		&created.ExpiryDate,
+		&created.ReorderDate,
 		&created.CreatedAt,
 	); err != nil {
 		return nil, err
@@ -43,7 +71,7 @@ func (r *StockRepository) CreateStockEntry(ctx context.Context, stockEntry *stoc
 
 func (r *StockRepository) GetByID(ctx context.Context, stockEntryID string) (*stock.StockEntry, error) {
 	row := r.db.QueryRow(ctx, `
-		SELECT id, product_id, warehouse_id, user_id, quantity_delta, reason, created_at
+		SELECT id, product_id, warehouse_id, user_id, quantity_delta, reason, supplier_price_cents, store_price_cents, expiry_date, reorder_date, created_at
 		FROM stock_entries
 		WHERE id = $1
 	`, stockEntryID)
@@ -56,6 +84,10 @@ func (r *StockRepository) GetByID(ctx context.Context, stockEntryID string) (*st
 		&found.UserID,
 		&found.QuantityDelta,
 		&found.Reason,
+		&found.SupplierPriceCents,
+		&found.StorePriceCents,
+		&found.ExpiryDate,
+		&found.ReorderDate,
 		&found.CreatedAt,
 	); err != nil {
 		return nil, err
@@ -74,7 +106,7 @@ func (r *StockRepository) GetList(ctx context.Context, limit int) ([]*stock.Stoc
 
 	// Then get the entries
 	rows, err := r.db.Query(ctx, `
-		SELECT id, product_id, warehouse_id, user_id, quantity_delta, reason, created_at
+		SELECT id, product_id, warehouse_id, user_id, quantity_delta, reason, supplier_price_cents, store_price_cents, expiry_date, reorder_date, created_at
 		FROM stock_entries
 		ORDER BY created_at DESC
 		LIMIT $1
@@ -94,6 +126,10 @@ func (r *StockRepository) GetList(ctx context.Context, limit int) ([]*stock.Stoc
 			&entry.UserID,
 			&entry.QuantityDelta,
 			&entry.Reason,
+			&entry.SupplierPriceCents,
+			&entry.StorePriceCents,
+			&entry.ExpiryDate,
+			&entry.ReorderDate,
 			&entry.CreatedAt,
 		); err != nil {
 			return nil, 0, err
@@ -139,7 +175,7 @@ func (r *StockRepository) UpdateByID(ctx context.Context, stockEntryID string, p
 		UPDATE stock_entries
 		SET ` + strings.Join(setClauses, ", ") + `
 		WHERE id = $` + strconv.Itoa(argPos) + `
-		RETURNING id, product_id, warehouse_id, user_id, quantity_delta, reason, created_at
+		RETURNING id, product_id, warehouse_id, user_id, quantity_delta, reason, supplier_price_cents, store_price_cents, expiry_date, reorder_date, created_at
 	`
 
 	row := r.db.QueryRow(ctx, query, args...)
