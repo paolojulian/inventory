@@ -18,9 +18,36 @@ import (
 func NewPool() (*pgxpool.Pool, error) {
 	config := config.LoadConfig()
 
-	pool, err := pgxpool.New(context.Background(), config.DatabaseURL)
+	poolConfig, err := pgxpool.ParseConfig(config.DatabaseURL)
+	if err != nil {
+		return nil, fmt.Errorf("unable to parse database config: %w", err)
+	}
+
+	// Force IPv4
+	poolConfig.ConnConfig.LookupFunc = func(ctx context.Context, host string) ([]string, error) {
+		return []string{host}, nil
+	}
+	
+	// Add connection timeout
+	poolConfig.ConnConfig.ConnectTimeout = 10 * time.Second
+	
+	// Configure pool
+	poolConfig.MaxConns = 5
+	poolConfig.MinConns = 1
+	poolConfig.MaxConnLifetime = 1 * time.Hour
+	poolConfig.MaxConnIdleTime = 30 * time.Minute
+
+	pool, err := pgxpool.NewWithConfig(context.Background(), poolConfig)
 	if err != nil {
 		return nil, fmt.Errorf("unable to connect to database: %w", err)
+	}
+
+	// Test connection
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	
+	if err := pool.Ping(ctx); err != nil {
+		return nil, fmt.Errorf("failed to ping database: %w", err)
 	}
 
 	return pool, nil
