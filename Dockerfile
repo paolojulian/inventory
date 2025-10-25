@@ -1,4 +1,5 @@
-FROM golang:1.22-bookworm
+# Use the correct Go base image
+FROM golang:1.23-alpine AS builder
 
 WORKDIR /usr/src/app
 
