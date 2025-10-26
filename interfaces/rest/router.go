@@ -35,16 +35,20 @@ func setupRouter() *gin.Engine {
 }
 
 func registerRoutesAuth(r *gin.Engine, handlers *AuthHandlers) {
-	var authGroup *gin.RouterGroup
-	if config.IsTestEnv() {
-		authGroup = r.Group("/auth", middlewareTest.TestAuthMiddleware())
-	} else {
-		authGroup = r.Group("/auth", middleware.AuthMiddleware())
-	}
+	// Public auth routes
+	publicAuth := r.Group("/auth")
+	publicAuth.POST("/login", user_handler.LoginHandler(handlers.Login))
 
-	authGroup.POST("/login", user_handler.LoginHandler(handlers.Login))
-	authGroup.POST("/logout", user_handler.LogoutHandler())
-	authGroup.POST("/me", user_handler.MeHandler())
+	// Protected auth routes
+	if config.IsTestEnv() {
+		protected := r.Group("/auth", middlewareTest.TestAuthMiddleware())
+		protected.POST("/logout", user_handler.LogoutHandler())
+		protected.POST("/me", user_handler.MeHandler())
+	} else {
+		protected := r.Group("/auth", middleware.AuthMiddleware())
+		protected.POST("/logout", user_handler.LogoutHandler())
+		protected.POST("/me", user_handler.MeHandler())
+	}
 }
 
 func registerRoutesProduct(r *gin.Engine, handlers *ProductHandlers) {
