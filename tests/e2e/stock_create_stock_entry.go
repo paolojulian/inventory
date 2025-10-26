@@ -41,9 +41,6 @@ func TestStock_CreateStockEntry(t *testing.T) {
 	if err := postgres.MigrateSchema(bootstrap.DB); err != nil {
 		t.Fatalf("failed to re-run migrations: %v", err)
 	}
-	if err := postgres.PopulateInitialData(bootstrap.DB); err != nil {
-		t.Fatalf("failed to populate initial data: %v", err)
-	}
 
 	productRepo := postgres.NewProductRepository(bootstrap.DB)
 
