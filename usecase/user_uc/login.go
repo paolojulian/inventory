@@ -32,20 +32,23 @@ func NewLoginUseCase(repo UserRepository) *LoginUseCase {
 func (uc *LoginUseCase) Execute(ctx context.Context, input *LoginInput) (*LoginOutput, error) {
 	user, err := uc.repo.FindByUsername(ctx, input.Username)
 	if err != nil {
+		log.Printf("error finding user: %v", err)
 		return nil, err
 	}
 
 	if user == nil {
+		log.Printf("user not found: %v", input.Username)
 		return nil, ErrUserNotFound
 	}
 
 	if err := userDomain.ComparePassword(user.Password, input.Password); err != nil {
-		log.Printf("here")
+		log.Printf("error comparing password: %v", err)
 		return nil, err
 	}
 
 	userAccessToken, err := auth.NewAccessToken(user.ID)
 	if err != nil {
+		log.Printf("error creating access token: %v", err)
 		return nil, err
 	}
 

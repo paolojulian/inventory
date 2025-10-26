@@ -10,6 +10,7 @@ import (
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"paolojulian.dev/inventory/config"
 )
@@ -29,6 +30,10 @@ func NewPool() (*pgxpool.Pool, error) {
 	
 	// Add connection timeout
 	poolConfig.ConnConfig.ConnectTimeout = 10 * time.Second
+	
+	// Disable prepared statements for Supabase compatibility
+	// Supabase uses PgBouncer in transaction mode which doesn't support prepared statements
+	poolConfig.ConnConfig.DefaultQueryExecMode = pgx.QueryExecModeSimpleProtocol
 	
 	// Configure pool
 	poolConfig.MaxConns = 5
