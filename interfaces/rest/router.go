@@ -21,6 +21,7 @@ func setupRouter() *gin.Engine {
 			"http://localhost:5173",
 			"http://localhost:4173",
 			"https://inventory-client-gamma.vercel.app",
+			config.LoadConfig().AppURI,
 		},
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},

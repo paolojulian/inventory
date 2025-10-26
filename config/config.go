@@ -13,6 +13,7 @@ type Config struct {
 	DatabaseURL      string
 	DatabaseNoSSLURL string
 	AppEnv           string
+	AppURI           string
 }
 
 var (
@@ -56,9 +57,15 @@ func LoadConfig() *Config {
 			log.Fatal("DATABASE_NO_SSL_URL is required")
 		}
 
+		appUri := os.Getenv("APP_URI")
+		if appUri == "" {
+			log.Fatal("APP_URI is required")
+		}
+
 		cfg = &Config{
 			DatabaseURL:      dbURL,
 			DatabaseNoSSLURL: dbNoSSLURL,
+			AppURI:           appUri,
 		}
 	})
 	return cfg
