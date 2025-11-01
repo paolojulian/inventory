@@ -9,6 +9,7 @@ import (
 	"paolojulian.dev/inventory/interfaces/rest/inventory_handler"
 	"paolojulian.dev/inventory/interfaces/rest/middleware"
 	"paolojulian.dev/inventory/interfaces/rest/product_handler"
+	"paolojulian.dev/inventory/interfaces/rest/stock_handler"
 	"paolojulian.dev/inventory/interfaces/rest/user_handler"
 	middlewareTest "paolojulian.dev/inventory/tests/middleware"
 )
@@ -20,6 +21,8 @@ func setupRouter() *gin.Engine {
 		AllowOrigins: []string{
 			"http://localhost:5173",
 			"http://localhost:4173",
+			"http://192.168.100.51:4173/",
+			"http://192.168.100.51:5173/",
 			"https://inventory-client-gamma.vercel.app",
 			"https://inventory.paolojulian.dev",
 			config.LoadConfig().AppURI,
@@ -67,20 +70,16 @@ func registerRoutesProduct(r *gin.Engine, handlers *ProductHandlers) {
 	productGroup.POST("/:id/de-activate", product_handler.DeactivateHandler(handlers.Deactivate))
 }
 
-// func registerRoutesStock(r *gin.Engine, handlers *StockHandlers) {
-// 	var stockGroup *gin.RouterGroup
-// 	if config.IsTestEnv() {
-// 		stockGroup = r.Group("/stock-entries", middlewareTest.TestAuthMiddleware())
-// 	} else {
-// 		stockGroup = r.Group("/stock-entries", middleware.AuthMiddleware())
-// 	}
+func registerRoutesStock(r *gin.Engine, handlers *StockHandlers) {
+	var stockGroup *gin.RouterGroup
+	if config.IsTestEnv() {
+		stockGroup = r.Group("/stock-entries", middlewareTest.TestAuthMiddleware())
+	} else {
+		stockGroup = r.Group("/stock-entries", middleware.AuthMiddleware())
+	}
 
-// 	stockGroup.POST("", stock_handler.CreateHandler(handlers.Create))
-// 	stockGroup.GET("", stock_handler.GetListHandler(handlers.GetList))
-// 	stockGroup.GET("/:id", stock_handler.GetHandler(handlers.Get))
-// 	stockGroup.PUT("/:id", stock_handler.UpdateHandler(handlers.Update))
-// 	stockGroup.DELETE("/:id", stock_handler.DeleteHandler(handlers.Delete))
-// }
+	stockGroup.POST("", stock_handler.CreateHandler(handlers.Create))
+}
 
 func registerRoutesInventory(r *gin.Engine, handlers *InventoryHandlers) {
 	var inventoryGroup *gin.RouterGroup

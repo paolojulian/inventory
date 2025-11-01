@@ -23,7 +23,7 @@ func TestLogin__Success(t *testing.T) {
 
 	// == Create test data==
 	username := "test-user"
-	password := "qwe123"
+	password := "qwe123!"
 	userRepo := postgres.NewUserRepository(bootstrap.DB)
 	user := factory.NewTestUser(password)
 	user.Username = username
@@ -50,14 +50,16 @@ func TestLogin__Success(t *testing.T) {
 	// Assert
 	assert.Equal(t, http.StatusOK, w.Code)
 
-	// Extract Set-Cookie header
-	setCookie := w.Header().Get("Set-Cookie")
-	assert.NotEmpty(t, setCookie, "Set-Cookie header should not be empty")
+	// Parse response body
+	var response map[string]interface{}
+	err = json.Unmarshal(w.Body.Bytes(), &response)
+	assert.NoError(t, err, "failed to parse response body")
 
-	// Check that the access_token cookie is set and has HttpOnly and Secure flags
-	assert.Contains(t, setCookie, "access_token=", "access_token cookie not set")
-	assert.Contains(t, setCookie, "HttpOnly", "HttpOnly flag not set")
-	assert.Contains(t, setCookie, "Secure", "Secure flag not set")
+	// Check that the token is returned in the response
+	token, ok := response["token"].(string)
+	assert.True(t, ok, "token field not found in response")
+	assert.NotEmpty(t, token, "token should not be empty")
+	assert.Greater(t, len(token), 20, "token should be a valid JWT")
 }
 
 func TestLogin__Fail(t *testing.T) {
@@ -68,7 +70,7 @@ func TestLogin__Fail(t *testing.T) {
 
 	// == Create test data==
 	username := "test-user"
-	password := "qwe123"
+	password := "qwe123!"
 	userRepo := postgres.NewUserRepository(bootstrap.DB)
 	user := factory.NewTestUser(password)
 	user.Username = username

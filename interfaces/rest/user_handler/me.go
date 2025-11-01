@@ -22,7 +22,7 @@ func MeHandler() gin.HandlerFunc {
 		// Extract the token from "Bearer <token>"
 		parts := strings.Split(authHeader, " ")
 		if len(parts) != 2 || parts[0] != "Bearer" {
-			log.Printf("token is not valid: %v")
+			log.Printf("invalid authorization header format")
 			ctx.Status(http.StatusUnauthorized)
 			return
 		}

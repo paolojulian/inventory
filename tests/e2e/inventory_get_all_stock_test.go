@@ -65,7 +65,7 @@ func TestInventory_GetAllStock_WithPager(t *testing.T) {
 	se1.ProductID = createdP1.ID
 	se1.WarehouseID = "550e8400-e29b-41d4-a716-446655440000"
 	// Use default admin user created by PopulateInitialData
-	adminUser, err := postgres.NewUserRepository(bootstrap.DB).FindByUsername(ctx, "theman")
+	adminUser, err := postgres.NewUserRepository(bootstrap.DB).FindByUsername(ctx, "admin")
 	if err != nil || adminUser == nil {
 		t.Fatalf("failed to resolve default admin user: %v", err)
 	}
