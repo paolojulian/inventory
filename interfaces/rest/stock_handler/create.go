@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"paolojulian.dev/inventory/interfaces/rest/middleware"
 	stock_uc "paolojulian.dev/inventory/usecase/stock_uc"
 )
 
@@ -19,7 +20,7 @@ func CreateHandler(uc *stock_uc.CreateStockEntryUseCase) gin.HandlerFunc {
 		}
 
 		// Get user ID from context (set by auth middleware)
-		userID, exists := ctx.Get("user_id")
+		userID, exists := ctx.Get(middleware.UserIDKey)
 		if !exists {
 			ctx.JSON(http.StatusUnauthorized, gin.H{
 				"message": "User not authenticated",
@@ -37,6 +38,6 @@ func CreateHandler(uc *stock_uc.CreateStockEntryUseCase) gin.HandlerFunc {
 			return
 		}
 
-		ctx.JSON(http.StatusCreated, gin.H{"stock_entry": result})
+		ctx.JSON(http.StatusCreated, gin.H{"stock_entry": result.StockEntry})
 	}
 }
