@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"paolojulian.dev/inventory/domain/inventory"
+	"paolojulian.dev/inventory/domain/warehouse"
 	paginationShared "paolojulian.dev/inventory/shared/pagination"
 )
 
@@ -24,7 +25,7 @@ func NewGetAllCurrentStockUseCase(repo GetAllCurrentStockRepository) *GetAllCurr
 }
 
 func (uc *GetAllCurrentStockUseCase) Execute(ctx context.Context, input GetAllCurrentStockInput) (*inventory.GetAllStockOutput, error) {
-	result, err := uc.repo.GetAllCurrentStock(ctx, "550e8400-e29b-41d4-a716-446655440000", input.Pager)
+	result, err := uc.repo.GetAllCurrentStock(ctx, warehouse.DefaultWarehouseID, input.Pager)
 	if err != nil {
 		return nil, err
 	}
