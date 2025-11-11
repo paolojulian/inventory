@@ -37,7 +37,7 @@ func TestCreateStockEntry_ValidInput(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotNil(t, result)
 	assert.NotNil(t, result.StockEntry)
-	assert.Equal(t, input.QuantityDelta, result.StockEntry.QuantityDelta)
+	assert.Equal(t, input.QuantityDelta, result.StockEntry.QuantityDelta * -1)
 	assert.Equal(t, input.ProductID, result.StockEntry.ProductID)
 	assert.Equal(t, input.WarehouseID, result.StockEntry.WarehouseID)
 	assert.Equal(t, input.SupplierPriceCents, result.StockEntry.SupplierPriceCents)

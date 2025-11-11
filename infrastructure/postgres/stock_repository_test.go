@@ -28,7 +28,7 @@ func setupTestData(t *testing.T, ctx context.Context, db *pgxpool.Pool) (warehou
 	productRepo := postgres.NewProductRepository(db)
 	sku, err := product.NewSKU("TEST-" + id.NewUUID()[:8])
 	require.NoError(t, err, "failed to create SKU")
-	
+
 	desc, err := product.NewDescription("Test product for stock entry")
 	require.NoError(t, err, "failed to create description")
 
@@ -49,7 +49,7 @@ func setupTestData(t *testing.T, ctx context.Context, db *pgxpool.Pool) (warehou
 	firstName := "Test"
 	lastName := "User"
 	mobile := "1234567890"
-	
+
 	testUser, err := userDomain.NewUser(
 		"testuser-"+id.NewUUID()[:8],
 		"password123",
@@ -63,6 +63,36 @@ func setupTestData(t *testing.T, ctx context.Context, db *pgxpool.Pool) (warehou
 	require.NoError(t, err, "failed to create user domain object")
 	createdUser, err := userRepo.Save(ctx, testUser)
 	require.NoError(t, err, "failed to create test user")
+
+	// Create stock entries
+	stockRepo := postgres.NewStockRepository(db)
+	restockEntry := stock.NewStockEntry(
+		testProduct.ID,
+		defaultWarehouse.ID,
+		testUser.ID,
+		5,
+		stock.ReasonRestock,
+		nil,
+		nil,
+		nil,
+		nil,
+	)
+	_, err = stockRepo.CreateStockEntry(ctx, restockEntry)
+	require.NoError(t, err, "faled to create stock entry")
+
+	saleEntry := stock.NewStockEntry(
+		testProduct.ID,
+		defaultWarehouse.ID,
+		testUser.ID,
+		2,
+		stock.ReasonSale,
+		nil,
+		nil,
+		nil,
+		nil,
+	)
+	_, err = stockRepo.CreateStockEntry(ctx, saleEntry)
+	require.NoError(t, err, "faled to create stock entry")
 
 	return defaultWarehouse.ID, createdProduct.ID, createdUser.ID
 }
@@ -87,6 +117,9 @@ func cleanupTestData(t *testing.T, ctx context.Context, db *pgxpool.Pool, stockE
 	if userID != "" {
 		_, _ = db.Exec(ctx, "DELETE FROM users WHERE id = $1", userID)
 	}
+
+	// Delete stock entry
+	_, _ = db.Exec(ctx, "DELETE FROM stock_entries")
 }
 
 func TestStockRepository_CreateStockEntry_Success(t *testing.T) {
@@ -365,4 +398,24 @@ func TestStockRepository_CreateStockEntry_NegativeQuantity(t *testing.T) {
 	assert.NotNil(t, created)
 	assert.Equal(t, -15, created.QuantityDelta)
 	assert.Equal(t, stock.ReasonDamage, created.Reason)
+}
+
+func TestStockRepository_GetListSuccess(t *testing.T) {
+	// Setup
+	db, err := postgres.NewPool()
+	require.NoError(t, err, "failed to connect to database")
+	defer db.Close()
+
+	ctx := context.Background()
+	warehouseID, productID, userID := setupTestData(t, ctx, db)
+	defer cleanupTestData(t, ctx, db, warehouseID, productID, userID)
+
+	// Execute
+	repo := postgres.NewStockRepository(db)
+	stockEntries, totalCount, err := repo.GetList(ctx, 10)
+
+	require.NoError(t, err)
+	assert.NotNil(t, stockEntries)
+	assert.Equal(t, 2, totalCount) // We created 2 entries in setup
+
 }

@@ -54,7 +54,7 @@ func (uc *CreateStockEntryUseCase) Execute(ctx context.Context, input *StockEntr
 		return nil, err
 	}
 
-	createdStockEntry, err := uc.repo.CreateStockEntry(ctx, &stockEntry)
+	createdStockEntry, err := uc.repo.CreateStockEntry(ctx, stockEntry)
 	if err != nil {
 		return nil, err
 	}

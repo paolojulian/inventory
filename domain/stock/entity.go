@@ -21,10 +21,17 @@ type StockEntry struct {
 	ReorderDate        *time.Time
 }
 
-func NewStockEntry(productID, warehouseID, userID string, quantityDelta int, reason StockReason, supplierPriceCents *int, storePriceCents *int, expiryDate *time.Time, reorderDate *time.Time) StockEntry {
-	return StockEntry{
+func NewStockEntry(productID, warehouseID, userID string, quantityDelta int, reason StockReason, supplierPriceCents *int, storePriceCents *int, expiryDate *time.Time, reorderDate *time.Time) *StockEntry {
+	var resolvedQuantityDelta int = quantityDelta
+	switch reason {
+	case ReasonDamage,
+		ReasonSale,
+		ReasonTransferOut:
+		resolvedQuantityDelta = resolvedQuantityDelta * -1
+	}
+	return &StockEntry{
 		ID:                 id.NewUUID(),
-		QuantityDelta:      quantityDelta,
+		QuantityDelta:      resolvedQuantityDelta,
 		Reason:             reason,
 		CreatedAt:          time.Now(),
 		ProductID:          productID,

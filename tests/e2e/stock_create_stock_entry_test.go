@@ -96,7 +96,7 @@ func TestStock_CreateStockEntry(t *testing.T) {
 	assert.NotNil(t, resp.StockEntry)
 	assert.Equal(t, input["product_id"], resp.StockEntry.ProductID)
 	assert.Equal(t, input["warehouse_id"], resp.StockEntry.WarehouseID)
-	assert.Equal(t, input["quantity_delta"], resp.StockEntry.QuantityDelta)
+	assert.Equal(t, input["quantity_delta"], resp.StockEntry.QuantityDelta * -1)
 	assert.Equal(t, stock.StockReason(input["reason"].(string)), resp.StockEntry.Reason)
 	if resp.StockEntry.SupplierPriceCents != nil {
 		assert.Equal(t, input["supplier_price_cents"], *resp.StockEntry.SupplierPriceCents)
