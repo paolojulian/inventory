@@ -4,21 +4,31 @@ import (
 	"fmt"
 	"time"
 
+	"paolojulian.dev/inventory/domain/product"
+	"paolojulian.dev/inventory/domain/user"
+	"paolojulian.dev/inventory/domain/warehouse"
 	"paolojulian.dev/inventory/pkg/id"
 )
 
 type StockEntry struct {
-	ID                 string
-	QuantityDelta      int
-	Reason             StockReason
-	CreatedAt          time.Time
-	ProductID          string
-	WarehouseID        string
-	UserID             string
-	SupplierPriceCents *int
-	StorePriceCents    *int
-	ExpiryDate         *time.Time
-	ReorderDate        *time.Time
+	ID                 string      `json:"id"`
+	QuantityDelta      int         `json:"quantity_delta"`
+	Reason             StockReason `json:"reason"`
+	CreatedAt          time.Time   `json:"created_at"`
+	ProductID          string      `json:"product_id"`
+	WarehouseID        string      `json:"warehouse_id"`
+	UserID             string      `json:"user_id"`
+	SupplierPriceCents *int        `json:"supplier_price_cents,omitempty"`
+	StorePriceCents    *int        `json:"store_price_cents,omitempty"`
+	ExpiryDate         *time.Time  `json:"expiry_date,omitempty"`
+	ReorderDate        *time.Time  `json:"reorder_date,omitempty"`
+}
+
+type StockEntryWithRelations struct {
+	StockEntry
+	Product   *product.Product     `json:"product,omitempty"`
+	Warehouse *warehouse.Warehouse `json:"warehouse,omitempty"`
+	User      *user.User           `json:"user,omitempty"`
 }
 
 func NewStockEntry(productID, warehouseID, userID string, quantityDelta int, reason StockReason, supplierPriceCents *int, storePriceCents *int, expiryDate *time.Time, reorderDate *time.Time) *StockEntry {

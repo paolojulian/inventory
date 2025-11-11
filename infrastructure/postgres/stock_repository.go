@@ -7,7 +7,11 @@ import (
 	"strings"
 
 	"github.com/jackc/pgx/v5/pgxpool"
+	"paolojulian.dev/inventory/domain/product"
 	"paolojulian.dev/inventory/domain/stock"
+	"paolojulian.dev/inventory/domain/user"
+	"paolojulian.dev/inventory/domain/warehouse"
+	paginationShared "paolojulian.dev/inventory/shared/pagination"
 )
 
 type StockRepository struct {
@@ -96,7 +100,7 @@ func (r *StockRepository) GetByID(ctx context.Context, stockEntryID string) (*st
 	return &found, nil
 }
 
-func (r *StockRepository) GetList(ctx context.Context, limit int) ([]*stock.StockEntry, int, error) {
+func (r *StockRepository) GetList(ctx context.Context, pager *paginationShared.PagerInput) ([]*stock.StockEntryWithRelations, int, error) {
 	// First get the total count
 	var totalCount int
 	err := r.db.QueryRow(ctx, `SELECT COUNT(*) FROM stock_entries`).Scan(&totalCount)
@@ -105,36 +109,60 @@ func (r *StockRepository) GetList(ctx context.Context, limit int) ([]*stock.Stoc
 	}
 
 	// Then get the entries
+	offset := (pager.PageNumber - 1) * pager.PageSize
 	rows, err := r.db.Query(ctx, `
-		SELECT id, product_id, warehouse_id, user_id, quantity_delta, reason, supplier_price_cents, store_price_cents, expiry_date, reorder_date, created_at
-		FROM stock_entries
+		WITH stock_data AS (
+			SELECT
+				se.id, se.product_id, se.warehouse_id, se.user_id, se.quantity_delta, se.reason, se.supplier_price_cents, se.store_price_cents, se.expiry_date, se.reorder_date, se.created_at,
+				p.id as p_id, p.sku, p.name as product_name, p.price_cents, p.description, p.is_active,
+				w.id as w_id, w.name as warehouse_name,
+				u.id as u_id, u.first_name as user_first_name, u.last_name as user_last_name
+			FROM stock_entries se
+			LEFT JOIN products p ON se.product_id = p.id
+			LEFT JOIN warehouses w ON se.warehouse_id = w.id
+			LEFT JOIN users u ON se.user_id = u.id
+		)
+		SELECT
+			id, product_id, warehouse_id, user_id, quantity_delta, reason, supplier_price_cents, store_price_cents, expiry_date, reorder_date, created_at,
+			p_id, sku, product_name, price_cents, description, is_active,
+			w_id, warehouse_name,
+			u_id, user_first_name, user_last_name
+		FROM stock_data
 		ORDER BY created_at DESC
-		LIMIT $1
-	`, limit)
+		LIMIT $1 OFFSET $2
+	`, pager.PageSize, offset)
+
 	if err != nil {
 		return nil, 0, err
 	}
 	defer rows.Close()
 
-	stockEntries := []*stock.StockEntry{}
+	var stockEntries []*stock.StockEntryWithRelations
+
 	for rows.Next() {
 		var entry stock.StockEntry
+		var p product.Product
+		var w warehouse.Warehouse
+		var u user.User
+		var priceCents int
+
 		if err := rows.Scan(
-			&entry.ID,
-			&entry.ProductID,
-			&entry.WarehouseID,
-			&entry.UserID,
-			&entry.QuantityDelta,
-			&entry.Reason,
-			&entry.SupplierPriceCents,
-			&entry.StorePriceCents,
-			&entry.ExpiryDate,
-			&entry.ReorderDate,
-			&entry.CreatedAt,
+			&entry.ID, &entry.ProductID, &entry.WarehouseID, &entry.UserID, &entry.QuantityDelta, &entry.Reason, &entry.SupplierPriceCents, &entry.StorePriceCents, &entry.ExpiryDate, &entry.ReorderDate, &entry.CreatedAt,
+			&p.ID, &p.SKU, &p.Name, &priceCents, &p.Description, &p.IsActive,
+			&w.ID, &w.Name,
+			&u.ID, &u.FirstName, &u.LastName,
 		); err != nil {
 			return nil, 0, err
 		}
-		stockEntries = append(stockEntries, &entry)
+
+		p.Price = product.Money{Cents: priceCents}
+
+		stockEntries = append(stockEntries, &stock.StockEntryWithRelations{
+			StockEntry: entry,
+			Product:    &p,
+			Warehouse:  &w,
+			User:       &u,
+		})
 	}
 
 	return stockEntries, totalCount, nil

@@ -13,6 +13,7 @@ import (
 	userDomain "paolojulian.dev/inventory/domain/user"
 	"paolojulian.dev/inventory/infrastructure/postgres"
 	"paolojulian.dev/inventory/pkg/id"
+	paginationShared "paolojulian.dev/inventory/shared/pagination"
 )
 
 // setupTestData creates necessary test data (warehouse, product, user) for stock entry tests
@@ -412,10 +413,73 @@ func TestStockRepository_GetListSuccess(t *testing.T) {
 
 	// Execute
 	repo := postgres.NewStockRepository(db)
-	stockEntries, totalCount, err := repo.GetList(ctx, 10)
+	stockEntries, totalCount, err := repo.GetList(ctx, &paginationShared.PagerInput{
+		PageNumber: 1,
+		PageSize:   10,
+	})
 
+	// Assert
 	require.NoError(t, err)
 	assert.NotNil(t, stockEntries)
 	assert.Equal(t, 2, totalCount) // We created 2 entries in setup
+	assert.Len(t, stockEntries, 2)
 
+	// Verify first entry (most recent - sale entry with quantity_delta -2)
+	firstEntry := stockEntries[0]
+	assert.NotEmpty(t, firstEntry.StockEntry.ID)
+	assert.Equal(t, -2, firstEntry.StockEntry.QuantityDelta)
+	assert.Equal(t, stock.ReasonSale, firstEntry.StockEntry.Reason)
+	assert.Equal(t, productID, firstEntry.StockEntry.ProductID)
+	assert.Equal(t, warehouseID, firstEntry.StockEntry.WarehouseID)
+	assert.Equal(t, userID, firstEntry.StockEntry.UserID)
+	assert.False(t, firstEntry.StockEntry.CreatedAt.IsZero())
+
+	// Verify product data
+	assert.NotNil(t, firstEntry.Product)
+	assert.Equal(t, productID, firstEntry.Product.ID)
+	assert.Equal(t, "Test Product", firstEntry.Product.Name)
+	assert.Contains(t, string(firstEntry.Product.SKU), "TEST-")
+	assert.Equal(t, 1000, firstEntry.Product.Price.Cents)
+	assert.Equal(t, "Test product for stock entry", string(firstEntry.Product.Description))
+	assert.True(t, firstEntry.Product.IsActive)
+
+	// Verify warehouse data
+	assert.NotNil(t, firstEntry.Warehouse)
+	assert.Equal(t, warehouseID, firstEntry.Warehouse.ID)
+	assert.NotEmpty(t, firstEntry.Warehouse.Name)
+
+	// Verify user data
+	assert.NotNil(t, firstEntry.User)
+	assert.Equal(t, userID, firstEntry.User.ID)
+	assert.NotNil(t, firstEntry.User.FirstName)
+	assert.Equal(t, "Test", *firstEntry.User.FirstName)
+	assert.NotNil(t, firstEntry.User.LastName)
+	assert.Equal(t, "User", *firstEntry.User.LastName)
+
+	// Verify second entry (older - restock entry with quantity_delta 5)
+	secondEntry := stockEntries[1]
+	assert.NotEmpty(t, secondEntry.StockEntry.ID)
+	assert.Equal(t, 5, secondEntry.StockEntry.QuantityDelta)
+	assert.Equal(t, stock.ReasonRestock, secondEntry.StockEntry.Reason)
+	assert.Equal(t, productID, secondEntry.StockEntry.ProductID)
+	assert.Equal(t, warehouseID, secondEntry.StockEntry.WarehouseID)
+	assert.Equal(t, userID, secondEntry.StockEntry.UserID)
+	assert.False(t, secondEntry.StockEntry.CreatedAt.IsZero())
+
+	// Verify product data for second entry
+	assert.NotNil(t, secondEntry.Product)
+	assert.Equal(t, productID, secondEntry.Product.ID)
+
+	// Verify warehouse data for second entry
+	assert.NotNil(t, secondEntry.Warehouse)
+	assert.Equal(t, warehouseID, secondEntry.Warehouse.ID)
+
+	// Verify user data for second entry
+	assert.NotNil(t, secondEntry.User)
+	assert.Equal(t, userID, secondEntry.User.ID)
+
+	// Verify ordering (most recent first)
+	assert.True(t, firstEntry.StockEntry.CreatedAt.After(secondEntry.StockEntry.CreatedAt) ||
+		firstEntry.StockEntry.CreatedAt.Equal(secondEntry.StockEntry.CreatedAt),
+		"Entries should be ordered by created_at DESC")
 }

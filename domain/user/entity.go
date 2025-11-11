@@ -3,15 +3,15 @@ package user
 import "paolojulian.dev/inventory/pkg/id"
 
 type User struct {
-	ID        string
-	Username  string
-	Password  string
-	Role      string
-	IsActive  bool
-	Email     *string
-	FirstName *string
-	LastName  *string
-	Mobile    *string
+	ID        string  `json:"id"`
+	Username  string  `json:"username"`
+	Password  string  `json:"password"`
+	Role      string  `json:"role"`
+	IsActive  bool    `json:"is_active"`
+	Email     *string `json:"email,omitempty"`
+	FirstName *string `json:"first_name,omitempty"`
+	LastName  *string `json:"last_name,omitempty"`
+	Mobile    *string `json:"mobile,omitempty"`
 }
 
 func NewUser(
